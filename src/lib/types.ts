@@ -74,7 +74,7 @@ export type Hairstyle = {
 
 export type ShopItem = { url: string; note?: string; bought?: boolean; boughtOn?: string }
 
-export const COST_CATEGORIES = ['Stable', 'Vet', 'Farrier', 'Feed', 'Equipment', 'Lessons', 'Shows', 'Grooming', 'Other'] as const
+export const COST_CATEGORIES = ['Stable', 'Vet', 'Farrier', 'Feed', 'Equipment', 'Lessons', 'Shows', 'Transport', 'Grooming', 'Purchase', 'Other'] as const
 export type Cost = { date: string; category: string; amount: number; description?: string; invoice?: string; recurring?: boolean }
 
 export type Level = 'beginner' | 'intermediate' | 'advanced'
