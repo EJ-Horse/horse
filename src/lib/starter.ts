@@ -186,6 +186,25 @@ export const STARTER_SKILLS: Skill[] = [
   sk('Water / Liverpool', 'advanced', 'jumping', ['Ride positively, look up and over.', 'Keep the leg on strongly at take-off.', 'Practise first with a tarp at home.']),
   sk('Bending lines', 'advanced', 'jumping', ['Plan the track before you ride it.', 'Land on the right lead.', 'Use the line you planned to fit the strides.']),
   sk('Full course at height', 'advanced', 'jumping', ['Warm up over the same height.', 'Keep one rhythm the whole way round.', 'Breathe in the corners.']),
+  // Added Nov 2026
+  sk("Free walk on a long rein", 'beginner', 'dressage', ["Let the reins slide out slowly, keep a light contact.", "Ask for a big, marching walk with your seat.", "EJ should stretch his nose forward and down."]),
+  sk("Stretchy trot circle", 'beginner', 'dressage', ["Rising trot on a 20 m circle.", "Gradually let the reins out as EJ reaches down.", "Keep the rhythm the same; take the reins back smoothly."]),
+  sk("Serpentines & changes of rein", 'beginner', 'dressage', ["Plan each loop before you ride it.", "Straighten for a stride when you cross the centre line.", "Change your bend and diagonal as you change direction."]),
+  sk("Turn on the haunches", 'intermediate', 'dressage', ["Start from a walk or halt, with slight bend into the turn.", "Outside leg behind the girth keeps the hind legs from swinging out.", "Inside leg at the girth keeps him walking; outside rein moves the shoulders around."]),
+  sk("Rein back", 'intermediate', 'dressage', ["Start from a square, relaxed halt.", "Lighten your seat, close both legs and resist softly with the hands.", "Count the steps and walk forward right after."]),
+  sk("Counter canter", 'intermediate', 'dressage', ["Keep the bend over the leading leg, not the direction of travel.", "Start with shallow loops off the track.", "Sit still and keep your outside leg back."]),
+  sk("Haunches-in (travers)", 'intermediate', 'dressage', ["Bend EJ around your inside leg.", "Outside leg behind the girth brings the hindquarters in.", "Shoulders stay on the track; about 30° angle."]),
+  sk("Simple change", 'intermediate', 'dressage', ["Canter, transition to walk for 3–5 clean steps.", "Re-bend, then pick up the new lead.", "Prepare each transition with a half-halt."]),
+  sk("Medium trot", 'intermediate', 'dressage', ["Build energy on the short side.", "Allow the frame to lengthen a little, same rhythm.", "Half-halt to come back before the corner."]),
+  sk("Renvers", 'advanced', 'dressage', ["Like travers, but with the tail to the wall.", "Bend toward the direction of travel.", "Keep the angle steady along the whole long side."]),
+  sk("Canter half-pass", 'advanced', 'dressage', ["Start from a balanced, collected canter.", "Bend toward the direction of travel; outside leg pushes sideways.", "Shoulders lead slightly; keep the jump in the canter."]),
+  sk("Trot poles & cavaletti", 'beginner', 'jumping', ["Look past the poles, not down at them.", "Keep a steady rhythm and soft hands.", "Rise or two-point over them as your coach asks."]),
+  sk("Landing on the correct lead", 'intermediate', 'jumping', ["Look in the direction of the turn in the air.", "Open the inside rein slightly over the fence.", "Weight the inside stirrup a little on landing."]),
+  sk("Seeing a distance", 'intermediate', 'jumping', ["Keep the same canter rhythm all the way to the fence.", "Count 1–2–3 for the last strides.", "Don't chase or pull; trust the canter."]),
+  sk("Adjusting the canter (lengthen / shorten)", 'intermediate', 'jumping', ["Practise on the flat: 5 strides then 6 strides on the same line.", "Lengthen with your leg and a softer hand.", "Shorten with half-halts and a taller body."]),
+  sk("Bounces", 'intermediate', 'jumping', ["Come in with an active, balanced canter.", "Stay in your jumping position through the whole line.", "Hands forward, eyes up to the end."]),
+  sk("Jumping on an angle", 'intermediate', 'jumping', ["Start with a small fence at a slight angle.", "Pick your line and keep both legs on so he stays straight.", "Look at your landing point, not the fence."]),
+  sk("Skinny fences & corners", 'advanced', 'jumping', ["Channel EJ between your hands and legs.", "Pick an exact line and look past the fence.", "Plenty of leg and a steady canter; no surprises."]),
 ]
 
 export const STARTER_TODOS: Todo[] = [
