@@ -28,7 +28,7 @@ export function Lock() {
   return (
     <div className="lock">
       <form className="card lock-card" onSubmit={signIn}>
-        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={64} height={64} />
+        <img src={`${import.meta.env.BASE_URL}ej-face.jpg`} alt="EJ" className="hero-img" />
         <h1>EJ</h1>
         <p className="muted small">Private. Sign in to continue.</p>
         <label className="field">

@@ -43,7 +43,7 @@ export function Home() {
   return (
     <Screen title={p.name || 'EJ'} back={false}>
       <button className="hero" onClick={() => setEditing(true)}>
-        {p.photo ? <MediaImg path={p.photo} className="hero-img" /> : <span className="hero-img placeholder">🐴</span>}
+        {p.photo ? <MediaImg path={p.photo} className="hero-img" /> : <img src={`${import.meta.env.BASE_URL}ej-face.jpg`} alt="EJ" className="hero-img" />}
         <span className="hero-text">
           <strong>{p.name || 'EJ'}</strong>
           <span className="muted small">
