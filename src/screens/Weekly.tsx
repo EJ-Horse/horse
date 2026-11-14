@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ErrorText, Field, SaveBar, Screen, Segmented, Sheet, AddButton, useDraft } from '../components/ui'
 import { addDays, formatDate, parseDate, today, weekStart } from '../lib/dates'
 import { addItem, getCurrentUserId, removeItem, updateItem, useItems, usePeople, type Item } from '../lib/store'
-import type { Fear, Todo } from '../lib/types'
+import { normalizeReaction, REACTIONS, type Fear, type Reaction, type Todo } from '../lib/types'
 
 export function isDoneThisWeek(t: Todo, now = today()) {
   return t.doneWeek === weekStart(now)
@@ -82,7 +82,12 @@ export function Weekly() {
   )
 }
 
-const REACTIONS = ['mild', 'spooks', 'big spook'] as const
+const REACTION_LABEL: Record<Reaction, string> = { curious: '👀 Curious', bothered: '😬 Bothered', 'freaks out': '😱 Freaks out' }
+const REACTION_HINT: Record<Reaction, string> = {
+  curious: 'Alert and watching, ears forward, but calm.',
+  bothered: 'Tense, snorts, won’t go near it.',
+  'freaks out': 'Spins, bolts, rears or won’t calm down.',
+}
 const STATUSES = ['scared', 'improving', 'fine now'] as const
 const STATUS_ICON = { scared: '😨', improving: '📈', 'fine now': '😌' }
 
@@ -106,7 +111,7 @@ export function Fears() {
               </span>
             </div>
             <p className="muted small">
-              {f.data.reaction} · since {formatDate(f.data.firstSeen)}
+              {REACTION_LABEL[normalizeReaction(f.data.reaction)]} · since {formatDate(f.data.firstSeen)}
               {f.data.history?.length ? ` · ${f.data.history.length} updates` : ''}
             </p>
             {f.data.history?.length ? <p className="small">Latest: {f.data.history[f.data.history.length - 1].note}</p> : null}
@@ -119,7 +124,7 @@ export function Fears() {
 }
 
 function FearSheet({ item, onClose }: { item: Item<Fear> | null; onClose: () => void }) {
-  const [d, set] = useDraft<Fear>(item?.data ?? { what: '', firstSeen: today(), reaction: 'spooks', status: 'scared', history: [] })
+  const [d, set] = useDraft<Fear>(item?.data ?? { what: '', firstSeen: today(), reaction: 'bothered', status: 'scared', history: [] })
   const [update, setUpdate] = useState('')
   const [err, setErr] = useState('')
   async function save() {
@@ -138,10 +143,11 @@ function FearSheet({ item, onClose }: { item: Item<Fear> | null; onClose: () => 
         <input type="date" value={d.firstSeen} onChange={(e) => set('firstSeen', e.target.value)} />
       </Field>
       <Field label="Reaction">
-        <Segmented value={d.reaction} options={REACTIONS} onChange={(v) => set('reaction', v)} />
+        <Segmented value={normalizeReaction(d.reaction)} options={REACTIONS} labels={REACTION_LABEL} onChange={(v) => set('reaction', v)} />
+        <span className="hint">{REACTION_HINT[normalizeReaction(d.reaction)]}</span>
       </Field>
       <Field label="Now">
-        <Segmented value={d.status} options={STATUSES} labels={STATUS_ICON} onChange={(v) => set('status', v)} />
+        <Segmented value={d.status} options={STATUSES} labels={{ scared: '😨 Scared', improving: '📈 Better', 'fine now': '😌 Fine now' }} onChange={(v) => set('status', v)} />
       </Field>
       <Field label="Notes">
         <textarea rows={2} value={d.notes ?? ''} onChange={(e) => set('notes', e.target.value)} placeholder="What helps? e.g. let him sniff it first" />

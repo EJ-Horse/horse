@@ -6,6 +6,7 @@ export type Profile = {
   height?: string
   stable?: string
   vetName?: string
+  vetClinic?: string
   vetPhone?: string
   farrierPhone?: string
   photo?: string
@@ -16,7 +17,10 @@ export type Profile = {
 
 export type Vaccine = { name: string; date: string; nextDue?: string; vet?: string; notes?: string }
 
-export type CareTask = { title: string; lastDone?: string; everyDays: number; notes?: string; seasonal?: string }
+/** dueOn overrides the computed date (e.g. the vet says it's due now); it clears when marked done. */
+export type CareTask = { title: string; lastDone?: string; everyDays: number; notes?: string; seasonal?: string; dueOn?: string }
+
+export type VetVisit = { date: string; vet?: string; reason: string; findings?: string; nextSteps?: string; files?: string[] }
 
 export type Symptom = {
   date: string
@@ -98,10 +102,21 @@ export type CoachEntry = {
 
 export type Todo = { text: string; doneWeek?: string; doneBy?: string; oneOff?: boolean }
 
+export const REACTIONS = ['curious', 'bothered', 'freaks out'] as const
+export type Reaction = (typeof REACTIONS)[number]
+
+/** Older entries used mild/spooks/big spook. */
+export function normalizeReaction(r: string): Reaction {
+  if (r === 'mild') return 'curious'
+  if (r === 'spooks') return 'bothered'
+  if (r === 'big spook') return 'freaks out'
+  return (REACTIONS as readonly string[]).includes(r) ? (r as Reaction) : 'bothered'
+}
+
 export type Fear = {
   what: string
   firstSeen: string
-  reaction: 'mild' | 'spooks' | 'big spook'
+  reaction: Reaction
   status: 'scared' | 'improving' | 'fine now'
   notes?: string
   history?: { date: string; note: string }[]

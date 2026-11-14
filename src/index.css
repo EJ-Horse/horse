@@ -1044,3 +1044,19 @@ img.hero-img {
   height: 112px;
   border-radius: 56px;
 }
+
+.vet-card {
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+}
+.vet-title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 17px;
+}
+.vet-title > span:first-child {
+  font-size: 24px;
+}
+.pre {
+  white-space: pre-wrap;
+}

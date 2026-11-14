@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { AddButton, AddedBy, ErrorText, Field, Lightbox, MediaImg, SaveBar, Screen, Segmented, Sheet, UploadButton, useDraft } from '../components/ui'
 import { addDays, dueLabel, dueState, formatDate, today } from '../lib/dates'
 import { downloadIcs } from '../lib/ics'
-import { addItem, deleteMedia, removeItem, updateItem, useItems, type Item } from '../lib/store'
-import type { CareTask, Symptom, Vaccine } from '../lib/types'
+import { addItem, deleteMedia, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
+import type { CareTask, Profile, Symptom, Vaccine, VetVisit } from '../lib/types'
 
-const TABS = ['Vaccines', 'Care', 'Symptoms'] as const
+const TABS = ['Visits', 'Vaccines', 'Care', 'Symptoms'] as const
 type Tab = (typeof TABS)[number]
 
 export function Health() {
-  const [tab, setTab] = useState<Tab>('Vaccines')
+  const [tab, setTab] = useState<Tab>('Visits')
   return (
     <Screen title="Health">
       <Segmented value={tab} options={TABS} onChange={setTab} />
+      {tab === 'Visits' && <Visits />}
       {tab === 'Vaccines' && <Vaccines />}
       {tab === 'Care' && <Care />}
       {tab === 'Symptoms' && <Symptoms />}
@@ -139,6 +140,7 @@ function VaccineSheet({ item, onClose }: { item: Item<Vaccine> | null; onClose: 
 // ---------------- Care (hooves, clipping, etc.) ----------------
 
 export function careNextDue(c: CareTask) {
+  if (c.dueOn) return c.dueOn
   return c.lastDone ? addDays(c.lastDone, c.everyDays) : undefined
 }
 
@@ -167,7 +169,7 @@ function Care() {
                 {c.data.lastDone && ` · last ${formatDate(c.data.lastDone)}`}
               </p>
               <div className="quick-row">
-                <button className="btn small" onClick={() => void updateItem(c.id, { ...c.data, lastDone: today() })}>
+                <button className="btn small" onClick={() => void updateItem(c.id, { ...c.data, lastDone: today(), dueOn: undefined })}>
                   ✓ Done today
                 </button>
                 {next && (
@@ -348,6 +350,111 @@ function SymptomSheet({ item, onClose }: { item: Item<Symptom> | null; onClose: 
           item
             ? () => {
                 void deleteMedia(item.data.photos ?? [])
+                void removeItem(item.id).then(onClose)
+              }
+            : undefined
+        }
+      />
+    </Sheet>
+  )
+}
+
+// ---------------- Vet visits ----------------
+
+export function lastVisit(visits: Item<VetVisit>[]) {
+  return [...visits].sort((a, b) => b.data.date.localeCompare(a.data.date))[0]
+}
+
+function Visits() {
+  const list = useItems<VetVisit>('visit')
+  const [edit, setEdit] = useState<Item<VetVisit> | 'new' | null>(null)
+  const [big, setBig] = useState<string | null>(null)
+  const sorted = [...list].sort((a, b) => b.data.date.localeCompare(a.data.date))
+  return (
+    <>
+      <div className="row-between">
+        <p className="muted small">Every vet visit with what the vet found, newest first.</p>
+        <AddButton onClick={() => setEdit('new')} label="Visit" />
+      </div>
+      {sorted.length === 0 && <p className="empty">No vet visits yet.</p>}
+      <ul className="list">
+        {sorted.map((v) => (
+          <li key={v.id} className="card tap" onClick={() => setEdit(v)}>
+            <div className="row-between">
+              <strong>{v.data.reason}</strong>
+              <span className="muted small">{formatDate(v.data.date)}</span>
+            </div>
+            {v.data.vet && <p className="muted small">{v.data.vet}</p>}
+            {v.data.findings && <p className="small pre">{v.data.findings}</p>}
+            {v.data.nextSteps && (
+              <div className="feedback">
+                <span className="field-label">Next steps</span>
+                <p className="small pre">{v.data.nextSteps}</p>
+              </div>
+            )}
+            {v.data.files?.length ? (
+              <div className="thumbs">
+                {v.data.files.map((p) => (
+                  <MediaImg key={p} path={p} className="thumb" onClick={() => setBig(p)} />
+                ))}
+              </div>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      {edit && <VisitSheet item={edit === 'new' ? null : edit} onClose={() => setEdit(null)} />}
+      <Lightbox path={big} onClose={() => setBig(null)} />
+    </>
+  )
+}
+
+function VisitSheet({ item, onClose }: { item: Item<VetVisit> | null; onClose: () => void }) {
+  const profile = useSingle<Profile>('profile')
+  const [d, set] = useDraft<VetVisit>(item?.data ?? { date: today(), reason: 'Check-up', vet: profile?.data.vetName })
+  const [err, setErr] = useState('')
+  async function save() {
+    if (!d.reason.trim()) return setErr('Add the reason for the visit.')
+    if (item) await updateItem(item.id, d)
+    else await addItem('visit', d)
+    onClose()
+  }
+  return (
+    <Sheet open title={item ? 'Vet visit' : 'New vet visit'} onClose={onClose}>
+      <Field label="Reason">
+        <input value={d.reason} onChange={(e) => set('reason', e.target.value)} placeholder="e.g. Check-up, vaccines, dental" />
+      </Field>
+      <Field label="Date">
+        <input type="date" value={d.date} onChange={(e) => set('date', e.target.value)} />
+      </Field>
+      <Field label="Vet">
+        <input value={d.vet ?? ''} onChange={(e) => set('vet', e.target.value)} />
+      </Field>
+      <Field label="What the vet found">
+        <textarea rows={5} value={d.findings ?? ''} onChange={(e) => set('findings', e.target.value)} />
+      </Field>
+      <Field label="Next steps">
+        <textarea rows={3} value={d.nextSteps ?? ''} onChange={(e) => set('nextSteps', e.target.value)} />
+      </Field>
+      <Field label="Photos of reports / x-rays">
+        <div className="thumbs">
+          {d.files?.map((p) => (
+            <div key={p} className="thumb-wrap">
+              <MediaImg path={p} className="thumb" />
+              <button type="button" className="thumb-x" aria-label="Remove" onClick={() => set('files', d.files!.filter((x) => x !== p))}>
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+        <UploadButton folder="visits" multiple onUploaded={(ps) => set('files', [...(d.files ?? []), ...ps])} />
+      </Field>
+      <ErrorText error={err} />
+      <SaveBar
+        onSave={save}
+        onDelete={
+          item
+            ? () => {
+                void deleteMedia(item.data.files ?? [])
                 void removeItem(item.id).then(onClose)
               }
             : undefined

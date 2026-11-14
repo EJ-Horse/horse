@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Field, MediaImg, SaveBar, Screen, Sheet, Tile, UploadButton, useDraft } from '../components/ui'
-import { ageFrom, dueLabel, dueState, today, monthKey } from '../lib/dates'
+import { ageFrom, daysBetween, dueLabel, dueState, formatDate, today, monthKey } from '../lib/dates'
 import { go } from '../lib/router'
 import { useItems, useSingle, updateItem, type Item } from '../lib/store'
 import { supabase } from '../lib/supabase'
-import type { CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine } from '../lib/types'
-import { careNextDue } from './Health'
+import type { CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
+import { careNextDue, lastVisit } from './Health'
 import { isDoneThisWeek } from './Weekly'
 import { money } from './Costs'
 
@@ -115,6 +115,7 @@ export function HorseHub() {
   const month = costs.filter((c) => monthKey(c.data.date) === monthKey(today())).reduce((s, c) => s + c.data.amount, 0)
   return (
     <Screen title="Horse" back={false}>
+      <VetCard />
       <div className="tiles">
         <Tile to="horse/health" icon="🩺" title="Health" sub="Vaccines, care, symptoms" badge={alerts || undefined} />
         <Tile to="horse/photos" icon="📸" title="Photos" sub={`${photos.length} photos`} />
@@ -177,6 +178,9 @@ function ProfileSheet({ item, onClose }: { item: Item<Profile>; onClose: () => v
       <Field label="Vet name">
         <input value={d.vetName ?? ''} onChange={(e) => set('vetName', e.target.value)} />
       </Field>
+      <Field label="Vet clinic">
+        <input value={d.vetClinic ?? ''} onChange={(e) => set('vetClinic', e.target.value)} />
+      </Field>
       <Field label="Vet phone">
         <input type="tel" value={d.vetPhone ?? ''} onChange={(e) => set('vetPhone', e.target.value)} />
       </Field>
@@ -219,3 +223,53 @@ export function NamePrompt({ userId, onDone }: { userId: string; onDone: () => v
   )
 }
 
+
+/** Always-visible vet contact on the Horse tab. */
+function VetCard() {
+  const profile = useSingle<Profile>('profile')
+  const visits = useItems<VetVisit>('visit')
+  const [editing, setEditing] = useState(false)
+  const p = profile?.data
+  const last = lastVisit(visits)
+  const ago = last ? daysBetween(last.data.date, today()) : null
+  return (
+    <div className="card vet-card">
+      <div className="row-between">
+        <span className="vet-title">
+          <span aria-hidden>🩺</span>
+          <span>
+            <strong>{p?.vetName || 'Add your vet'}</strong>
+            {p?.vetClinic && <span className="muted small"> · {p.vetClinic}</span>}
+          </span>
+        </span>
+        <button className="link small" onClick={() => setEditing(true)}>
+          Edit
+        </button>
+      </div>
+      <p className="small muted">
+        {last ? (
+          <>
+            Last seen {formatDate(last.data.date)} ({ago === 0 ? 'today' : `${ago} days ago`}) · {last.data.reason}
+          </>
+        ) : (
+          'No visits logged yet'
+        )}
+      </p>
+      <div className="quick-row">
+        {p?.vetPhone ? (
+          <a className="btn small" href={`tel:${p.vetPhone.replace(/[^\d+]/g, '')}`}>
+            📞 Call {p.vetPhone}
+          </a>
+        ) : (
+          <button className="btn small secondary" onClick={() => setEditing(true)}>
+            Add phone number
+          </button>
+        )}
+        <button className="btn ghost small" onClick={() => go('horse/health')}>
+          Visits
+        </button>
+      </div>
+      {editing && profile && <ProfileSheet item={profile} onClose={() => setEditing(false)} />}
+    </div>
+  )
+}
