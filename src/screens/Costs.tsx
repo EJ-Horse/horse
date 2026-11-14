@@ -14,12 +14,15 @@ export function Costs() {
   const profile = useSingle<Profile>('profile')
   const cur = profile?.data.currency || '$'
   const [edit, setEdit] = useState<Item<Cost> | 'new' | null>(null)
-  const months = totalsByMonth(costs.map((c) => c.data))
+  const paid = costs.filter((c) => !c.data.pending)
+  const pending = costs.filter((c) => c.data.pending).sort((a, b) => a.data.date.localeCompare(b.data.date))
+  const pendingTotal = pending.reduce((s, c) => s + c.data.amount, 0)
+  const months = totalsByMonth(paid.map((c) => c.data))
   const [month, setMonth] = useState(monthKey(today()))
-  const inMonth = costs.filter((c) => monthKey(c.data.date) === month).sort((a, b) => b.data.date.localeCompare(a.data.date))
+  const inMonth = paid.filter((c) => monthKey(c.data.date) === month).sort((a, b) => b.data.date.localeCompare(a.data.date))
   const cats = totalsByCategory(inMonth.map((c) => c.data))
   const year = month.slice(0, 4)
-  const yearTotal = costs.filter((c) => c.data.date.startsWith(year)).reduce((s, c) => s + c.data.amount, 0)
+  const yearTotal = paid.filter((c) => c.data.date.startsWith(year)).reduce((s, c) => s + c.data.amount, 0)
   const monthTotal = inMonth.reduce((s, c) => s + c.data.amount, 0)
   const allMonths = [...new Set([monthKey(today()), ...months.map((m) => m.month)])].sort().reverse()
   const max = Math.max(1, ...cats.map((c) => c.total))
@@ -36,6 +39,26 @@ export function Costs() {
           <span className="stat-value">{money(yearTotal, cur)}</span>
         </div>
       </div>
+      {pending.length > 0 && (
+        <div className="card warn">
+          <div className="row-between">
+            <strong>⏳ Pending</strong>
+            <strong>{money(pendingTotal, cur)}</strong>
+          </div>
+          <ul className="list compact">
+            {pending.map((c) => (
+              <li key={c.id} className="row-between tap" onClick={() => setEdit(c)}>
+                <span>
+                  {c.data.description || c.data.category}
+                  <span className="muted small"> · {c.data.category}</span>
+                </span>
+                <span>{money(c.data.amount, cur)}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="hint">Not counted as spent yet. Tap one and untick “Pending” once it’s paid.</p>
+        </div>
+      )}
       <select value={month} onChange={(e) => setMonth(e.target.value)} aria-label="Month">
         {allMonths.map((m) => (
           <option key={m} value={m}>
@@ -114,6 +137,9 @@ function CostSheet({ item, currency, onClose }: { item: Item<Cost> | null; curre
       <Field label="Date">
         <input type="date" value={d.date} onChange={(e) => set('date', e.target.value)} />
       </Field>
+      <label className="check">
+        <input type="checkbox" checked={!!d.pending} onChange={(e) => set('pending', e.target.checked || undefined)} /> Pending (not paid yet)
+      </label>
       <Field label="Invoice / receipt">
         {d.invoice ? (
           <div className="quick-row">

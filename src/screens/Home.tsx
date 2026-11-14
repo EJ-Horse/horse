@@ -112,7 +112,7 @@ export function HorseHub() {
   const costs = useItems<Cost>('cost')
   const cur = useSingle<Profile>('profile')?.data.currency || '$'
   const alerts = useAlerts().length
-  const month = costs.filter((c) => monthKey(c.data.date) === monthKey(today())).reduce((s, c) => s + c.data.amount, 0)
+  const month = costs.filter((c) => !c.data.pending && monthKey(c.data.date) === monthKey(today())).reduce((s, c) => s + c.data.amount, 0)
   return (
     <Screen title="Horse" back={false}>
       <VetCard />
