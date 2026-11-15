@@ -122,12 +122,14 @@ export function CodesBanner() {
       <button className="codes-banner" onClick={() => setEditing(true)} aria-label="Barn codes, tap to edit">
         <span aria-hidden>🔑</span>
         {codes.length ? (
-          codes.map((c) => (
-            <span key={c.label} className="code">
-              <span className="code-label">{c.label}</span>
-              <strong className="code-value">{c.code}</strong>
-            </span>
-          ))
+          <span className="codes-list">
+            {codes.map((c) => (
+              <span key={c.label} className="code">
+                <span className="code-label">{c.label}</span>
+                <strong className="code-value">{c.code}</strong>
+              </span>
+            ))}
+          </span>
         ) : (
           <span className="muted small">Add the barn gate codes</span>
         )}

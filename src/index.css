@@ -1448,3 +1448,21 @@ img.hero-img {
 .content:has(.call-dock) {
   padding-bottom: 72px;
 }
+
+/* gate codes spread evenly */
+.codes-list {
+  flex: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+.codes-list .code {
+  align-items: center;
+  text-align: center;
+}
+.codes-list .code + .code {
+  border-left: 1px solid var(--line);
+}
+.codes-banner .codes-edit {
+  margin-left: 0;
+}
