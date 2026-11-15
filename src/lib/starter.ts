@@ -147,6 +147,73 @@ export const STARTER_STYLES: Hairstyle[] = [
     'Puff out each bubble.',
     'Great for birthdays and fun shows.',
   ], 'Birthday'),
+  // Added Nov 2026
+  s('Rope twist mane', 'mane', ['long'], 'easy', [
+    'Start at the poll with a small section and split it in two.',
+    'Twist both strands the same way, then cross them over each other.',
+    'Add a little mane to each strand as you go down the neck.',
+    'Band the end and tuck it under.',
+  ]),
+  s('Dutch braid', 'mane', ['long'], 'medium', [
+    'Start at the poll with three small strands.',
+    'Cross each outside strand UNDER the middle one (not over).',
+    'Add a bit of new mane each time you cross, like a running braid.',
+    'The braid sits on top of the mane like a raised rope.',
+    'Band the end at the withers and tuck it under.',
+  ]),
+  s('Loop braids (scallops)', 'mane', ['medium', 'long'], 'medium', [
+    'Band the mane into sections about 3 fingers wide.',
+    'Braid each section to the end and band it.',
+    'Fold each braid up into a loop.',
+    'Band the end of the loop to the base of the next section.',
+    'You get a row of scallops along the neck.',
+    'Spray to hold.',
+  ]),
+  s('Ribbon braids', 'mane', ['medium', 'long'], 'medium', [
+    'Split the mane into 8–12 sections.',
+    'Tie a thin ribbon at the top of each section.',
+    'Braid the ribbon in as one of the three strands.',
+    'Tie the ribbon ends in a small bow.',
+    'Use show colours or Sofía’s favourite colour.',
+  ]),
+  s('Flower rosettes', 'mane', ['short', 'medium'], 'medium', [
+    'Make button braids along the neck.',
+    'Tuck a small fabric or silk flower into each button.',
+    'Secure each flower with a band or a hair pin.',
+    'Check nothing pokes EJ’s skin.',
+    'Remove the flowers before turnout.',
+  ], 'Spring'),
+  s('Valentine heart bands', 'mane', ['short', 'medium'], 'easy', [
+    'Make a banded mane with red and pink bands.',
+    'Alternate the colours down the neck.',
+    'Clip small felt hearts onto a few bands.',
+    'Finish with a little glitter spray (away from the eyes).',
+  ], 'Valentine’s'),
+  s('Stars & stripes bands', 'mane', ['short', 'medium'], 'easy', [
+    'Make a banded mane using red, white and blue bands.',
+    'Repeat the colours in order down the neck.',
+    'Add small star clips on a few sections.',
+    'Great for the 4th of July.',
+  ], '4th of July'),
+  s('Tail bubbles', 'tail', ['medium', 'long'], 'easy', [
+    'Brush the tail and gather it below the dock.',
+    'Put a band every hand-width down the tail.',
+    'Gently pull the hair between bands to puff each bubble.',
+    'Use coloured bands to match a theme.',
+  ]),
+  s('Ribbon tail braid', 'tail', ['medium', 'long'], 'easy', [
+    'Brush the tail out.',
+    'Tie a ribbon just below the dock.',
+    'Braid the tail with the ribbon as one strand.',
+    'Tie a bow at the end.',
+  ]),
+  s('Fishtail tail braid', 'tail', ['long'], 'medium', [
+    'Brush the tail and split it in two halves below the dock.',
+    'Take a thin piece from the outside of the left half and cross it to the right half.',
+    'Do the same from the right side to the left.',
+    'Keep alternating all the way down.',
+    'Band the end.',
+  ]),
 ]
 
 function sk(name: string, level: Skill['level'], discipline: Skill['discipline'], cues: string[]): Skill {

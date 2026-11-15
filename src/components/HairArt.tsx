@@ -19,6 +19,14 @@ type Kind =
   | 'tail-french'
   | 'tail-mud'
   | 'tail-web'
+  | 'loops'
+  | 'ribbons'
+  | 'flowers'
+  | 'valentine'
+  | 'usa'
+  | 'rope'
+  | 'tail-bubble'
+  | 'tail-ribbon'
   | 'mane'
   | 'tail'
 
@@ -37,6 +45,16 @@ const BY_NAME: Record<string, Kind> = {
   'French tail braid': 'tail-french',
   'Mud knot': 'tail-mud',
   'Spider-web tail': 'tail-web',
+  'Rope twist mane': 'rope',
+  'Dutch braid': 'running',
+  'Loop braids (scallops)': 'loops',
+  'Ribbon braids': 'ribbons',
+  'Flower rosettes': 'flowers',
+  'Valentine heart bands': 'valentine',
+  'Stars & stripes bands': 'usa',
+  'Tail bubbles': 'tail-bubble',
+  'Ribbon tail braid': 'tail-ribbon',
+  'Fishtail tail braid': 'tail-plait',
 }
 
 export function hairKind(h: Hairstyle): Kind {
@@ -46,8 +64,14 @@ export function hairKind(h: Hairstyle): Kind {
   if (h.area === 'tail') {
     if (n.includes('knot')) return 'tail-mud'
     if (n.includes('french')) return 'tail-french'
+    if (n.includes('bubble')) return 'tail-bubble'
+    if (n.includes('ribbon')) return 'tail-ribbon'
     return n.includes('braid') || n.includes('plait') ? 'tail-plait' : 'tail'
   }
+  if (n.includes('loop') || n.includes('scallop')) return 'loops'
+  if (n.includes('ribbon')) return 'ribbons'
+  if (n.includes('flower') || n.includes('rosette')) return 'flowers'
+  if (n.includes('rope') || n.includes('twist')) return 'rope'
   if (n.includes('bubble')) return 'bubble'
   if (n.includes('band')) return 'bands'
   if (n.includes('button') || n.includes('rosette')) return 'buttons'
@@ -136,14 +160,19 @@ function Art({ kind }: { kind: Kind }) {
   switch (kind) {
     case 'bands':
     case 'halloween':
+    case 'valentine':
+    case 'usa': {
+      const palette = { bands: ['#2f6fb0'], halloween: ['#f08c2b', '#1f1b18'], valentine: ['#e5484d', '#f49ac1'], usa: ['#c8372d', '#f4f1ec', '#2f5fb0'] }[kind]
       return (
         <Neck>
           {crest(6).map((p, i) => (
             <g key={i}>
               <line x1={p.x} y1={p.y} x2={p.x + p.nx * 14} y2={p.y + p.ny * 14} stroke={HAIR} strokeWidth="5" strokeLinecap="round" />
-              <rect x={p.x + p.nx * 5 - 3.2} y={p.y + p.ny * 5 - 1.6} width="6.4" height="3.2" rx="1.4" fill={kind === 'halloween' ? (i % 2 ? '#1f1b18' : '#f08c2b') : '#2f6fb0'} />
+              <rect x={p.x + p.nx * 5 - 3.2} y={p.y + p.ny * 5 - 1.6} width="6.4" height="3.2" rx="1.4" fill={palette[i % palette.length]} stroke={kind === 'usa' ? '#9a948c' : 'none'} strokeWidth="0.5" />
             </g>
           ))}
+          {kind === 'valentine' && <path d="M50 58 C42 50 44 44 50 48 C56 44 58 50 50 58 Z" fill="#e5484d" />}
+          {kind === 'usa' && <path d="M50 44 l2.4 5 5.4 0.6 -4 3.7 1.1 5.3 -4.9 -2.7 -4.9 2.7 1.1 -5.3 -4 -3.7 5.4 -0.6 Z" fill="#2f5fb0" />}
           {kind === 'halloween' && (
             <g>
               <circle cx="50" cy="52" r="7" fill="#f08c2b" />
@@ -153,6 +182,7 @@ function Art({ kind }: { kind: Kind }) {
           )}
         </Neck>
       )
+    }
     case 'bubble':
     case 'rainbow':
       return (
@@ -226,6 +256,97 @@ function Art({ kind }: { kind: Kind }) {
         </Neck>
       )
     }
+    case 'loops': {
+      const pts = crest(6, 0.1, 0.9).map((p) => ({ x: p.x + p.nx * 3, y: p.y + p.ny * 3, nx: p.nx, ny: p.ny }))
+      return (
+        <Neck>
+          {pts.slice(1).map((p, i) => {
+            const a = pts[i]
+            const mx = (a.x + p.x) / 2 + p.nx * 20
+            const my = (a.y + p.y) / 2 + p.ny * 20
+            return <path key={i} d={`M${a.x} ${a.y} Q${mx} ${my} ${p.x} ${p.y}`} stroke={HAIR} strokeWidth="4.4" fill="none" strokeLinecap="round" />
+          })}
+          {pts.map((p, i) => (
+            <circle key={'b' + i} cx={p.x} cy={p.y} r="2.2" fill="#2f6fb0" />
+          ))}
+        </Neck>
+      )
+    }
+    case 'ribbons':
+      return (
+        <Neck>
+          {crest(5, 0.12, 0.88).map((p, i) => (
+            <g key={i}>
+              <Braid x1={p.x + p.nx * 2} y1={p.y + p.ny * 2} x2={p.x + p.nx * 18} y2={p.y + p.ny * 18} n={4} w={4.6} />
+              <g transform={`translate(${p.x + p.nx * 19} ${p.y + p.ny * 19})`}>
+                <path d="M0 0 l-4 -2.6 l0 5.2 Z M0 0 l4 -2.6 l0 5.2 Z" fill={['#c8372d', '#7c5cc4', '#2f8a4c'][i % 3]} />
+              </g>
+            </g>
+          ))}
+        </Neck>
+      )
+    case 'flowers':
+      return (
+        <Neck>
+          {crest(5).map((p, i) => {
+            const cx = p.x + p.nx * 5
+            const cy = p.y + p.ny * 5
+            const petal = ['#f49ac1', '#f2c94c', '#ffffff', '#b99ae6', '#f49ac1'][i]
+            return (
+              <g key={i}>
+                <circle cx={cx} cy={cy} r="4.6" fill={HAIR} stroke={HAIR_DARK} strokeWidth="1" />
+                {[0, 72, 144, 216, 288].map((a) => (
+                  <circle key={a} cx={cx + Math.cos((a * Math.PI) / 180) * 2.6} cy={cy + Math.sin((a * Math.PI) / 180) * 2.6} r="1.7" fill={petal} />
+                ))}
+                <circle cx={cx} cy={cy} r="1.3" fill="#f08c2b" />
+              </g>
+            )
+          })}
+        </Neck>
+      )
+    case 'rope': {
+      const pts = crest(8, 0.1, 0.9)
+      return (
+        <Neck>
+          {pts.slice(1).map((p, i) => {
+            const a = pts[i]
+            const x1 = a.x + a.nx * 5
+            const y1 = a.y + a.ny * 5
+            const x2 = p.x + p.nx * 5
+            const y2 = p.y + p.ny * 5
+            return (
+              <g key={i} stroke={i % 2 ? HAIR_DARK : HAIR} strokeWidth="4.6" strokeLinecap="round">
+                <line x1={x1 + a.nx * 2} y1={y1 + a.ny * 2} x2={x2 - p.nx * 2} y2={y2 - p.ny * 2} />
+              </g>
+            )
+          })}
+        </Neck>
+      )
+    }
+    case 'tail-bubble':
+      return (
+        <Rump>
+          <path d="M52 16 Q60 18 60 26" stroke={HAIR} strokeWidth="5" fill="none" strokeLinecap="round" />
+          {[31, 41, 51, 60].map((y, i) => (
+            <g key={y}>
+              <ellipse cx="60" cy={y} rx="5" ry="5.4" fill={HAIR} />
+              <rect x="55.5" y={y + 4.4} width="9" height="2.4" rx="1" fill={['#2f6fb0', '#e5484d', '#3fae5b', '#f2c94c'][i]} />
+            </g>
+          ))}
+        </Rump>
+      )
+    case 'tail-ribbon':
+      return (
+        <Rump>
+          <path d="M52 16 Q60 18 60 26" stroke={HAIR} strokeWidth="5" fill="none" strokeLinecap="round" />
+          <Braid x1={60} y1={26} x2={58} y2={58} n={8} w={5} />
+          <path d="M62 28 Q56 36 62 44 Q56 50 60 56" stroke="#7c5cc4" strokeWidth="1.6" fill="none" />
+          <g transform="translate(58 60)">
+            <path d="M0 0 l-6 -3.6 l0 7.2 Z M0 0 l6 -3.6 l0 7.2 Z" fill="#7c5cc4" />
+            <circle r="1.6" fill="#b99ae6" />
+          </g>
+        </Rump>
+      )
     case 'tail-plait':
       return (
         <Rump>
