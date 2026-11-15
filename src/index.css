@@ -1466,3 +1466,24 @@ img.hero-img {
 .codes-banner .codes-edit {
   margin-left: 0;
 }
+
+/* four skill ratings in one row */
+.rating-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.rating {
+  white-space: normal;
+  line-height: 1.15;
+  font-size: 12.5px;
+  padding: 7px 3px;
+}
+.progress-seg.not-tried {
+  background: var(--muted);
+  opacity: 0.5;
+}
+.rating.on.not-tried {
+  background: var(--soft);
+  border-color: var(--muted);
+  font-weight: 600;
+}

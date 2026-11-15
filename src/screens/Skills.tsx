@@ -7,8 +7,8 @@ import type { Discipline, Level, Rating, Skill } from '../lib/types'
 
 export const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced']
 const DISCIPLINES = ['dressage', 'jumping'] as const
-const RATINGS: Rating[] = ['needs work', 'good', 'excellent']
-const RATING_ICON: Record<Rating, string> = { 'needs work': '🔸', good: '👍', excellent: '🌟' }
+const RATINGS: Rating[] = ['not tried', 'needs work', 'good', 'excellent']
+const RATING_ICON: Record<Rating, string> = { 'not tried': '🆕', 'needs work': '🔸', good: '👍', excellent: '🌟' }
 
 function cap(s: string) {
   return s[0].toUpperCase() + s.slice(1)
@@ -37,12 +37,14 @@ export function Skills() {
   const mine = skills.filter((s) => s.data.discipline === disc)
   const rated = mine.filter((s) => s.data.rating)
   const excellent = mine.filter((s) => s.data.rating === 'excellent').length
+  const notTried = mine.filter((s) => s.data.rating === 'not tried').length
   return (
     <Screen title="Skills" action={<AddButton onClick={() => setEdit('new')} label="Skill" />}>
       <Segmented value={disc} options={DISCIPLINES} labels={{ dressage: 'Dressage', jumping: 'Jumping' }} onChange={setDisc} />
       <div className="progress-card card soft">
         <span>
           {rated.length}/{mine.length} rated · {excellent} excellent
+          {notTried > 0 && ` · ${notTried} not tried yet`}
         </span>
         <span className="progress-track">
           {RATINGS.map((r) => (

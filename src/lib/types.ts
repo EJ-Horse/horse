@@ -96,7 +96,7 @@ export type Cost = { date: string; category: string; amount: number; description
 
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 export type Discipline = 'dressage' | 'jumping'
-export type Rating = 'needs work' | 'good' | 'excellent'
+export type Rating = 'not tried' | 'needs work' | 'good' | 'excellent'
 export type Skill = {
   name: string
   level: Level
