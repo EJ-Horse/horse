@@ -74,6 +74,8 @@ export type Hairstyle = {
   video?: string
   theme?: string
   favorite?: boolean
+  /** Sofía's own photo of the style on EJ; replaces the drawing. */
+  photo?: string
 }
 
 export const SHOP_CATEGORIES = ['Tack', 'Grooming', 'Fun', 'Health & first aid', 'Feed & treats', 'Rider gear', 'Barn & stable', 'Other'] as const

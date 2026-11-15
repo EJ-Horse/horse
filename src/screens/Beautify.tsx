@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { AddButton, Chips, ErrorText, Field, LinkOut, SaveBar, Screen, Segmented, Sheet, useDraft } from '../components/ui'
+import { AddButton, Chips, ErrorText, Field, LinkOut, MediaImg, SaveBar, Screen, Segmented, Sheet, UploadButton, useDraft } from '../components/ui'
+import { HairArt } from '../components/HairArt'
 import { autoDifficulty, difficultyOf, fitsLength, youtubeSearch } from '../lib/beautify'
 import { addItem, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
 import type { Difficulty, Hairstyle, Length, Profile } from '../lib/types'
@@ -52,17 +53,20 @@ export function Beautify() {
             </h3>
             <ul className="list">
               {group.map((s) => (
-                <li key={s.id} className="card tap" onClick={() => setOpen(s)}>
-                  <div className="row-between">
-                    <strong>
-                      {s.data.favorite && '⭐ '}
-                      {s.data.name}
-                    </strong>
-                    {s.data.theme && <span className="tag">{s.data.theme}</span>}
-                  </div>
-                  <p className="muted small">
-                    {s.data.lengths.join(' / ')} {s.data.area} · {s.data.steps.split('\n').filter(Boolean).length} steps
-                  </p>
+                <li key={s.id} className="card tap style-row" onClick={() => setOpen(s)}>
+                  <StylePic style={s.data} size={60} />
+                  <span className="style-info">
+                    <span className="row-between">
+                      <strong>
+                        {s.data.favorite && '⭐ '}
+                        {s.data.name}
+                      </strong>
+                      {s.data.theme && <span className="tag">{s.data.theme}</span>}
+                    </span>
+                    <span className="muted small">
+                      {s.data.lengths.join(' / ')} {s.data.area} · {s.data.steps.split('\n').filter(Boolean).length} steps
+                    </span>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -92,6 +96,19 @@ function StyleView({ item, onClose, onEdit }: { item: Item<Hairstyle>; onClose: 
   const [done, setDone] = useState<number[]>([])
   return (
     <Sheet open title={s.name} onClose={onClose}>
+      <div className="style-hero">
+        <StylePic style={s} size={150} />
+        <UploadButton
+          folder="styles"
+          label={s.photo ? '📷 Change photo' : '📷 Add our photo'}
+          onUploaded={([p]) => void updateItem(item.id, { ...s, photo: p })}
+        />
+        {s.photo && (
+          <button className="link small" onClick={() => void updateItem(item.id, { ...s, photo: undefined })}>
+            Show the drawing instead
+          </button>
+        )}
+      </div>
       <p className="muted small">
         {DIFF_ICON[difficultyOf(s)]} {difficultyOf(s)} · {s.lengths.join(' / ')} {s.area}
         {s.theme && ` · ${s.theme}`}
@@ -165,4 +182,10 @@ function StyleSheet({ item, defaultArea, onClose }: { item: Item<Hairstyle> | nu
       <SaveBar onSave={save} onDelete={item ? () => void removeItem(item.id).then(onClose) : undefined} />
     </Sheet>
   )
+}
+
+/** Sofía's photo of the style if there is one, otherwise the drawing. */
+function StylePic({ style, size }: { style: Hairstyle; size: number }) {
+  if (style.photo) return <MediaImg path={style.photo} className="style-photo" alt={style.name} />
+  return <HairArt style={style} size={size} />
 }
