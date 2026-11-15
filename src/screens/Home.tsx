@@ -61,7 +61,14 @@ export function Home() {
             {p.breed && ` · ${p.breed}`}
             {p.color && ` · ${p.color}`}
           </span>
-          <span className="link small">{p.birthDate ? 'Edit profile' : 'Add birth date & details'}</span>
+          {(p.registeredName || p.registry) && (
+            <span className="reg small">
+              📜 {p.registeredName ? <em>“{p.registeredName}”</em> : 'Registered'}
+              {p.registry && <span className="muted"> · {p.registry}</span>}
+              {p.registrationNumber && <span className="muted"> #{p.registrationNumber}</span>}
+            </span>
+          )}
+          <span className="link small">{p.birthDate && p.registry ? 'Edit profile' : p.birthDate ? 'Add registration & details' : 'Add birth date & details'}</span>
         </span>
       </button>
 
@@ -179,6 +186,18 @@ export function RiderHub() {
   )
 }
 
+const REGISTRIES = [
+  'Arabian Horse Association (AHA)',
+  'Half-Arabian Registry (AHA)',
+  'Anglo-Arabian Registry (AHA)',
+  'American Quarter Horse Association (AQHA)',
+  'The Jockey Club',
+  'American Paint Horse Association (APHA)',
+  'Appaloosa Horse Club (ApHC)',
+  'US Equestrian (USEF) recording',
+  'Not registered',
+]
+
 function ProfileSheet({ item, onClose }: { item: Item<Profile>; onClose: () => void }) {
   const [d, set] = useDraft<Profile>(item.data)
   async function save() {
@@ -194,6 +213,20 @@ function ProfileSheet({ item, onClose }: { item: Item<Profile>; onClose: () => v
       </Field>
       <Field label="Birth date">
         <input type="date" value={d.birthDate ?? ''} onChange={(e) => set('birthDate', e.target.value || undefined)} />
+      </Field>
+      <Field label="Registered name" hint="His official name on the papers (show name).">
+        <input value={d.registeredName ?? ''} onChange={(e) => set('registeredName', e.target.value || undefined)} placeholder="e.g. EJ’s Desert Wind" />
+      </Field>
+      <Field label="Registered with">
+        <input list="registries" value={d.registry ?? ''} onChange={(e) => set('registry', e.target.value || undefined)} placeholder="e.g. Arabian Horse Association" />
+        <datalist id="registries">
+          {REGISTRIES.map((r) => (
+            <option key={r} value={r} />
+          ))}
+        </datalist>
+      </Field>
+      <Field label="Registration number">
+        <input value={d.registrationNumber ?? ''} onChange={(e) => set('registrationNumber', e.target.value || undefined)} />
       </Field>
       <Field label="Breed">
         <input value={d.breed ?? ''} onChange={(e) => set('breed', e.target.value)} />

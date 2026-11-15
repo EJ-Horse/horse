@@ -1705,3 +1705,7 @@ img.hero-img {
     color: var(--ink);
   }
 }
+.hero-text .reg {
+  display: block;
+  line-height: 1.3;
+}

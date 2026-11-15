@@ -1,5 +1,10 @@
 export type Profile = {
   name: string
+  /** Official name on his papers, e.g. a show name. */
+  registeredName?: string
+  /** Where he is registered, e.g. Arabian Horse Association. */
+  registry?: string
+  registrationNumber?: string
   birthDate?: string
   breed?: string
   color?: string
