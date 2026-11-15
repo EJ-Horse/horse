@@ -19,6 +19,22 @@ describe('food guide search', () => {
     expect(top('chicken feed')?.name).toBe('Cattle or poultry feed')
     expect(top('courgette')?.name).toBe('Zucchini')
   })
+  it('handles words that look alike', () => {
+    expect(top('water')?.name).toBe('Fresh clean water')
+    expect(top('watermelon')?.name).toBe('Watermelon')
+    expect(top('pine')?.status).toBe('forbidden')
+    expect(top('pineapple')?.name).toBe('Pineapple')
+    expect(top('green beans')?.status).toBe('allowed')
+    expect(top('beans')?.status).toBe('forbidden')
+    expect(top('apple')?.name).toBe('Apples')
+  })
+  it('covers medicine, chemicals, hay and garden plants', () => {
+    expect(top('ibuprofen')?.status).toBe('forbidden')
+    expect(top('rat poison')?.status).toBe('forbidden')
+    expect(top('timothy')?.status).toBe('allowed')
+    expect(top('daffodil')?.status).toBe('forbidden')
+    expect(top('christmas tree')?.status).toBe('forbidden')
+  })
   it('returns nothing for unknown foods', () => {
     expect(searchFoods('xylophone', FOOD_GUIDE)).toHaveLength(0)
   })
