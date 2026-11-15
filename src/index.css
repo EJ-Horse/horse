@@ -1270,3 +1270,36 @@ img.hero-img {
   gap: 6px;
   align-items: center;
 }
+
+.contact-rows li {
+  grid-template-columns: 1fr 1.2fr auto auto;
+}
+.codes-rows li {
+  grid-template-columns: 1.3fr 1fr auto;
+}
+.codes-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  border: 1px dashed color-mix(in srgb, var(--brand) 40%, var(--line));
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 20px;
+}
+.code {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.code-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.code-value {
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}

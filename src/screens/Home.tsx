@@ -6,7 +6,7 @@ import { useItems, useSingle, updateItem, type Item } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import type { CoachEntry, RideSchedule, CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
 import { careNextDue, lastVisit } from './Health'
-import { ContactButtons } from '../components/Contacts'
+import { CodesBanner, ContactButtons } from '../components/Contacts'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
 import type { Attention } from '../lib/types'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
@@ -61,6 +61,8 @@ export function Home() {
           <span className="link small">{p.birthDate ? 'Edit profile' : 'Add birth date & details'}</span>
         </span>
       </button>
+
+      <CodesBanner />
 
       {alerts.length > 0 || manual.length > 0 ? (
         <div className="card">

@@ -8,6 +8,7 @@ export type Profile = {
   vetName?: string
   vetClinic?: string
   contacts?: Contact[]
+  codes?: Code[]
   vetPhone?: string
   farrierPhone?: string
   photo?: string
@@ -155,4 +156,7 @@ export type Fear = {
 export type Attention = { text: string; area: 'horse' | 'rider'; due?: string; done?: boolean; doneOn?: string; doneBy?: string }
 
 /** People with a quick call button (Sofía's coach, etc.). */
-export type Contact = { name: string; phone?: string; role?: string }
+export type Contact = { name: string; phone?: string; role?: string; text?: boolean }
+
+/** Barn codes shown in the banner on Home. */
+export type Code = { label: string; code: string }
