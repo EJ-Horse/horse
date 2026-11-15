@@ -30,6 +30,25 @@ export const STARTER_FOODS: Food[] = [
   { name: 'Meat & dairy', status: 'forbidden', notes: 'Horses are herbivores and can’t digest them.' },
   { name: 'Stone fruit pits', status: 'forbidden', notes: 'Cherry, peach and plum pits are toxic.' },
   { name: 'Cabbage & broccoli', status: 'forbidden', notes: 'Cause gas and colic.' },
+  // Added Nov 2026
+  { name: 'Strawberries', status: 'limit', limit: '3–5 a day', notes: 'Wash first; tops are fine.' },
+  { name: 'Blueberries', status: 'limit', limit: 'A small handful', notes: 'Easy bite-size reward.' },
+  { name: 'Grapes (seedless)', status: 'limit', limit: '5–10 a day', notes: 'Safe for horses in small amounts.' },
+  { name: 'Orange segments', status: 'limit', limit: '1 orange a day, peeled', notes: 'Peel and split into segments.' },
+  { name: 'Pineapple', status: 'limit', limit: '2–3 small chunks', notes: 'No skin or core.' },
+  { name: 'Cantaloupe / melon', status: 'limit', limit: '2–3 slices', notes: 'Remove seeds; small pieces of rind are OK.' },
+  { name: 'Mango', status: 'limit', limit: '2–3 slices', notes: 'Never give the pit.' },
+  { name: 'Peaches & plums', status: 'limit', limit: '1 a day', notes: 'Always remove the pit (pits are toxic).' },
+  { name: 'Dates (pitted)', status: 'limit', limit: '2–3 a day', notes: 'Very sweet; pits removed.' },
+  { name: 'Raisins', status: 'limit', limit: 'A small handful', notes: 'Sugary; great for hiding a pill.' },
+  { name: 'Pumpkin', status: 'limit', limit: 'A few chunks', notes: 'Fresh, plain pumpkin; seeds are fine. Not carved or rotting ones.' },
+  { name: 'Sweet potato', status: 'limit', limit: 'A few small pieces', notes: 'Raw or cooked plain, cut small.' },
+  { name: 'Cucumber', status: 'allowed', notes: 'Refreshing on hot days; slice it.' },
+  { name: 'Zucchini', status: 'allowed', notes: 'Cut into sticks or slices.' },
+  { name: 'Romaine lettuce', status: 'allowed', notes: 'A few leaves; avoid lots of iceberg.' },
+  { name: 'Alfalfa cubes', status: 'limit', limit: 'A few cubes as treats', notes: 'Soak if he bolts his food.' },
+  { name: 'Beet pulp (soaked)', status: 'allowed', notes: 'Always soak before feeding; ask the barn about his feed.' },
+  { name: 'Store-bought horse treats', status: 'limit', limit: 'Follow the bag (usually 2–5)', notes: 'Choose low-sugar ones if possible.' },
 ]
 
 function s(
