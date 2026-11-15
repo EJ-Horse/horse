@@ -9,7 +9,8 @@ import { careNextDue, lastVisit } from './Health'
 import { CodesBanner, ContactButtons } from '../components/Contacts'
 import { NextEvent } from '../components/NextEvent'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
-import type { Attention, HorseEvent } from '../lib/types'
+import type { Attention, HorseEvent, Injury, TrickProgress } from '../lib/types'
+import { injuryDay, latestCheck, needsVet } from '../lib/injury'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
 import { closedOn } from '../lib/events'
 import { isTaskDone } from './Weekly'
@@ -22,6 +23,7 @@ function useAlerts(): Alert[] {
   const vaccines = useItems<Vaccine>('vaccine')
   const care = useItems<CareTask>('care')
   const symptoms = useItems<Symptom>('symptom')
+  const injuries = useItems<Injury>('injury')
   const out: Alert[] = []
   const latest = new Map<string, Item<Vaccine>>()
   for (const v of [...vaccines].sort((a, b) => b.data.date.localeCompare(a.data.date))) if (!latest.has(v.data.name)) latest.set(v.data.name, v)
@@ -33,6 +35,16 @@ function useAlerts(): Alert[] {
     const next = careNextDue(c.data)
     const st = dueState(next, today(), 7)
     if (st === 'overdue' || st === 'soon') out.push({ key: c.id, text: `🧰 ${c.data.title}`, sub: dueLabel(next), state: st, to: 'horse/health' })
+  }
+  for (const inj of injuries.filter((x) => x.data.status === 'active')) {
+    const last = latestCheck(inj.data)
+    out.push({
+      key: inj.id,
+      text: `🩹 ${inj.data.title}`,
+      sub: last?.date === today() ? `Day ${injuryDay(inj.data, today())} · checked` : `Day ${injuryDay(inj.data, today())} · check today`,
+      state: needsVet(last) ? 'overdue' : 'soon',
+      to: 'horse/health',
+    })
   }
   for (const s of symptoms.filter((s) => !s.data.resolved)) {
     out.push({ key: s.id, text: `🩹 ${s.data.what}`, sub: 'Open symptom', state: s.data.severity === 'serious' ? 'overdue' : 'soon', to: 'horse/health' })
@@ -126,7 +138,7 @@ export function Home() {
 
       <div className="tiles">
         <Tile to="horse" icon="🐴" title="Horse" sub="Health, photos, food, looks, shopping, costs" />
-        <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tips, tasks, fears" />
+        <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tricks, tasks, fears" />
       </div>
 
       <ContactButtons vet dock />
@@ -164,6 +176,7 @@ export function RiderHub() {
   const todos = visibleTodos(useItems<Todo>('todo'), today())
   const left = todos.filter((t) => !isTaskDone(t.data)).length
   const excellent = skills.filter((s) => s.data.rating === 'excellent').length
+  const tricksLearned = useItems<TrickProgress>('trick').filter((t) => t.data.status === 'got it').length
   const rides = useItems<CoachEntry>('coach')
   const schedule = useSingle<RideSchedule>('rideSchedule')?.data.slots ?? DEFAULT_SCHEDULE
   const events = useItems<HorseEvent>('event')
@@ -180,6 +193,7 @@ export function RiderHub() {
         <Tile to="rider/tips" icon="💡" title="Tips" sub="Cues & videos" />
         <Tile to="rider/coach" icon="🏇" title="Rides" sub="Lessons & solo rides" badge={ridesDue || undefined} />
         <Tile to="rider/weekly" icon="✅" title="Tasks" sub={left ? `${left} left` : 'All done'} badge={left || undefined} />
+        <Tile to="rider/tricks" icon="🎪" title="Tricks" sub={`${tricksLearned} learned`} />
         <Tile to="rider/fears" icon="😨" title="What scares EJ" sub={fears.length ? `${fears.length} active` : 'Nothing'} />
       </div>
     </Screen>

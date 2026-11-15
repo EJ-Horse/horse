@@ -3,9 +3,10 @@ import { AddButton, AddedBy, ErrorText, Field, Lightbox, MediaImg, SaveBar, Scre
 import { addDays, dueLabel, dueState, formatDate, today } from '../lib/dates'
 import { downloadIcs } from '../lib/ics'
 import { addItem, deleteMedia, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
+import { Injuries } from '../components/Injuries'
 import type { CareTask, Profile, Symptom, Vaccine, VetVisit } from '../lib/types'
 
-const TABS = ['Visits', 'Vaccines', 'Care', 'Symptoms'] as const
+const TABS = ['Visits', 'Vaccines', 'Care', 'Symptoms', 'Injuries'] as const
 type Tab = (typeof TABS)[number]
 
 export function Health() {
@@ -17,6 +18,7 @@ export function Health() {
       {tab === 'Vaccines' && <Vaccines />}
       {tab === 'Care' && <Care />}
       {tab === 'Symptoms' && <Symptoms />}
+      {tab === 'Injuries' && <Injuries />}
     </Screen>
   )
 }

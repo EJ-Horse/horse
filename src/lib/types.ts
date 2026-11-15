@@ -216,3 +216,37 @@ export type HorseEvent = {
   /** 'closed' = the barn is closed (shown as a note within 30 days). */
   kind?: 'show' | 'clinic' | 'vet' | 'other' | 'closed'
 }
+
+/** One daily check of an injury. lameness: 0 = sound … 5 = won't bear weight. */
+export type InjuryCheck = {
+  date: string
+  lameness: number
+  heat: 'none' | 'warm' | 'hot'
+  swelling: 'none' | 'mild' | 'moderate' | 'severe'
+  photo?: string
+  treatment?: string
+  note?: string
+  by?: string
+}
+
+export type Injury = {
+  title: string
+  part?: string
+  leg?: 'LF' | 'RF' | 'LH' | 'RH'
+  startDate: string
+  status: 'active' | 'healed'
+  healedOn?: string
+  vetSeen?: boolean
+  checks: InjuryCheck[]
+}
+
+export type TrickStatus = 'not started' | 'learning' | 'got it'
+/** Progress on a built-in trick (key) or a custom one (custom set). */
+export type TrickProgress = {
+  key: string
+  status: TrickStatus
+  sessions?: number
+  lastPracticed?: string
+  notes?: string
+  custom?: { name: string; level: 'easy' | 'medium' | 'hard'; what: string; steps: string }
+}
