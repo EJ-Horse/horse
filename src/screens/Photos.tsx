@@ -159,31 +159,89 @@ function PhotoSheet({ item, part, issue, onClose }: { item?: Item<HorsePhoto>; p
   const photos = useItems<HorsePhoto>('photo')
   const issues = [...new Set(photos.map((p) => p.data.issue).filter(Boolean))] as string[]
   const [d, set] = useDraft<Partial<HorsePhoto>>(item?.data ?? { part: part ?? 'Face', date: today(), issue })
+  // New photos: several can be picked at once, each keeping the date it was taken.
+  const [picked, setPicked] = useState<{ path: string; date: string }[]>([])
   const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
+
   async function save() {
-    if (!d.path) return setErr('Add the photo first.')
-    if (item) await updateItem(item.id, d)
-    else await addItem('photo', d as HorsePhoto)
+    setErr('')
+    if (item) {
+      await updateItem(item.id, d)
+      onClose()
+      return
+    }
+    if (!picked.length) return setErr('Add at least one photo first.')
+    setBusy(true)
+    try {
+      for (const p of picked) await addItem('photo', { ...(d as HorsePhoto), path: p.path, date: p.date })
+    } catch (e) {
+      setBusy(false)
+      return setErr(e instanceof Error ? e.message : String(e))
+    }
     onClose()
-    if (!item && d.part && !issue) go('horse/photos/' + encodeURIComponent(d.part))
+    if (d.part && !issue) go('horse/photos/' + encodeURIComponent(d.part))
   }
+
   return (
-    <Sheet open title={item ? 'Edit photo' : 'New photo'} onClose={onClose}>
-      {d.path ? (
+    <Sheet open title={item ? 'Edit photo' : picked.length > 1 ? `${picked.length} new photos` : 'New photo'} onClose={onClose}>
+      {item ? (
         <MediaImg path={d.path} className="preview-img" />
       ) : (
-        <UploadButton folder="photos" label="📷 Take or choose photo" onUploaded={([p]) => set('path', p)} />
+        <>
+          {picked.length > 0 && (
+            <ul className="picked">
+              {picked.map((p, i) => (
+                <li key={p.path}>
+                  <MediaImg path={p.path} className="thumb" />
+                  <label className="field-label">
+                    Taken
+                    <input
+                      type="date"
+                      value={p.date}
+                      onChange={(e) => setPicked((list) => list.map((x, j) => (j === i ? { ...x, date: e.target.value } : x)))}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="icon-btn small"
+                    aria-label="Remove photo"
+                    onClick={() => {
+                      setPicked((list) => list.filter((x) => x.path !== p.path))
+                      void deleteMedia([p.path])
+                    }}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <UploadButton
+            folder="photos"
+            multiple
+            label={picked.length ? '+ Add more photos' : '📷 Take a photo or choose from your phone'}
+            onUploadedInfo={(files) => setPicked((list) => [...list, ...files.map((f) => ({ path: f.path, date: f.takenOn ?? today() }))])}
+          />
+          {picked.length === 0 && (
+            <p className="hint">
+              iPhone: choose Photo Library. Android: pick from Gallery or Google Photos. The date each photo was taken is filled in for you.
+            </p>
+          )}
+        </>
       )}
-      <Field label="Body part">
+      <Field label={item ? 'Body part' : picked.length > 1 ? 'Body part (for all)' : 'Body part'}>
         <select value={d.part} onChange={(e) => set('part', e.target.value as BodyPart)}>
           {BODY_PARTS.map((p) => (
             <option key={p}>{p}</option>
           ))}
         </select>
       </Field>
-      <Field label="Date taken">
-        <input type="date" value={d.date} onChange={(e) => set('date', e.target.value)} />
-      </Field>
+      {item && (
+        <Field label="Date taken">
+          <input type="date" value={d.date} onChange={(e) => set('date', e.target.value)} />
+        </Field>
+      )}
       <Field label="Watching something? (optional)" hint="Give it a name like “Spot on left hind” to follow it across photos.">
         <input list="issues" value={d.issue ?? ''} onChange={(e) => set('issue', e.target.value || undefined)} />
         <datalist id="issues">
@@ -197,6 +255,8 @@ function PhotoSheet({ item, part, issue, onClose }: { item?: Item<HorsePhoto>; p
       </Field>
       <ErrorText error={err} />
       <SaveBar
+        busy={busy}
+        saveLabel={!item && picked.length > 1 ? `Save ${picked.length} photos` : 'Save'}
         onSave={save}
         onDelete={
           item

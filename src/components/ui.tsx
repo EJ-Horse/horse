@@ -1,6 +1,7 @@
 import { isValidElement, useEffect, useRef, useState, type ReactNode } from 'react'
 import { MAX_UPLOAD_MB, uploadMedia, useMediaUrl, usePeople, type Item } from '../lib/store'
 import { go } from '../lib/router'
+import { photoTakenOn } from '../lib/exif'
 
 export function Screen({
   title,
@@ -173,7 +174,13 @@ export function MediaVideo({ path }: { path?: string }) {
   return <video src={url} controls playsInline className="clip" preload="metadata" />
 }
 
-/** A file button that uploads right away and hands back the stored path. */
+export type Uploaded = { path: string; takenOn?: string }
+
+/**
+ * A file button that uploads right away and hands back the stored paths.
+ * It opens the phone's own picker, so people can take a new photo or pick saved ones
+ * (Photo Library on iPhone; Gallery / Google Photos on Android).
+ */
 export function UploadButton({
   folder,
   accept = 'image/*',
@@ -181,36 +188,46 @@ export function UploadButton({
   multiple = false,
   capture,
   onUploaded,
+  onUploadedInfo,
 }: {
   folder: string
   accept?: string
   label?: string
   multiple?: boolean
   capture?: boolean
-  onUploaded: (paths: string[]) => void
+  onUploaded?: (paths: string[]) => void
+  /** Same as onUploaded, plus the date each photo was taken (read from the photo). */
+  onUploadedInfo?: (files: Uploaded[]) => void
 }) {
   const ref = useRef<HTMLInputElement>(null)
-  const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState<string>('')
   const [err, setErr] = useState('')
-  async function onPick(files: FileList | null) {
-    if (!files?.length) return
-    setBusy(true)
+  async function onPick(list: FileList | null) {
+    if (!list?.length) return
+    const files = Array.from(list)
     setErr('')
+    const done: Uploaded[] = []
     try {
-      const paths: string[] = []
-      for (const f of Array.from(files)) paths.push(await uploadMedia(f, folder))
-      onUploaded(paths)
+      for (const [i, f] of files.entries()) {
+        setProgress(files.length > 1 ? `Uploading ${i + 1} of ${files.length}…` : 'Uploading…')
+        const takenOn = f.type.startsWith('image/') ? await photoTakenOn(f) : undefined
+        done.push({ path: await uploadMedia(f, folder), takenOn })
+      }
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
     } finally {
-      setBusy(false)
+      if (done.length) {
+        onUploaded?.(done.map((d) => d.path))
+        onUploadedInfo?.(done)
+      }
+      setProgress('')
       if (ref.current) ref.current.value = ''
     }
   }
   return (
     <div className="upload">
-      <button type="button" className="btn secondary" disabled={busy} onClick={() => ref.current?.click()}>
-        {busy ? 'Uploading…' : label}
+      <button type="button" className="btn secondary" disabled={!!progress} onClick={() => ref.current?.click()}>
+        {progress || label}
       </button>
       <input
         ref={ref}
