@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { FOOD_GUIDE, sameFood, searchFoods } from './foodGuide'
+import { FOOD_GUIDE, lookupFood, sameFood, searchFoods } from './foodGuide'
+import { quipFor } from '../components/Psycho'
 
 const top = (q: string) => searchFoods(q, FOOD_GUIDE)[0]
 
@@ -34,6 +35,22 @@ describe('food guide search', () => {
     expect(top('timothy')?.status).toBe('allowed')
     expect(top('daffodil')?.status).toBe('forbidden')
     expect(top('christmas tree')?.status).toBe('forbidden')
+  })
+  it('only answers when it is sure', () => {
+    expect(lookupFood('rocks', FOOD_GUIDE).kind).not.toBe('answer')
+    expect(lookupFood('appl', FOOD_GUIDE).top?.name).toBe('Apples')
+    expect(lookupFood('appl', FOOD_GUIDE).kind).toBe('answer')
+    expect(lookupFood('strawb', FOOD_GUIDE).kind).toBe('maybe')
+    expect(lookupFood('rainbows', FOOD_GUIDE).kind).toBe('none')
+  })
+  it('jokes only on whole words', () => {
+    expect(quipFor('human fingers')).toContain('Fingers')
+    expect(quipFor('rainbows')).toContain('unicorn')
+    expect(quipFor('rocks')).toContain('trash')
+    expect(quipFor('lego')).toContain('trash')
+    expect(quipFor('legos')).toContain('trash')
+    expect(quipFor('grapes')).toBeNull()
+    expect(quipFor('sunflower seeds')).toBeNull()
   })
   it('returns nothing for unknown foods', () => {
     expect(searchFoods('xylophone', FOOD_GUIDE)).toHaveLength(0)

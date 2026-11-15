@@ -1670,3 +1670,38 @@ img.hero-img {
   color: var(--warn);
   font-weight: 600;
 }
+
+/* not food at all */
+.psycho {
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 18px 14px;
+  border: 2px solid #e5484d;
+  background: #fff7f5;
+}
+.psycho-art {
+  max-width: 100%;
+  height: auto;
+}
+.psycho-title {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #e5484d;
+  font-weight: 900;
+  transform: rotate(-2deg);
+}
+.psycho-line {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2b2421;
+}
+@media (prefers-color-scheme: dark) {
+  .psycho {
+    background: #3a1f1d;
+  }
+  .psycho-line {
+    color: var(--ink);
+  }
+}

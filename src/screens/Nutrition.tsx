@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { AddButton, Chips, ErrorText, Field, SaveBar, Screen, Segmented, Sheet, useDraft } from '../components/ui'
 import { addItem, removeItem, updateItem, useItems, type Item } from '../lib/store'
 import type { Food } from '../lib/types'
-import { FOOD_GUIDE, sameFood, searchFoods, type GuideFood } from '../lib/foodGuide'
+import { FOOD_GUIDE, lookupFood, sameFood, type GuideFood } from '../lib/foodGuide'
+import { PsychoArt, psychoLine, quipFor } from '../components/Psycho'
 
 const STATUS = ['allowed', 'limit', 'forbidden'] as const
 const STATUS_LABEL = { allowed: '✅ OK', limit: '⚖️ Limit', forbidden: '⛔ Never' }
@@ -35,8 +36,12 @@ export function Nutrition() {
   const sortFn = (a: Entry, b: Entry) => STATUS.indexOf(a.status) - STATUS.indexOf(b.status) || a.name.localeCompare(b.name)
   const favorites = foods.filter((f) => f.data.liking === 'loves')
 
-  const results = q.trim() ? searchFoods(q, all) : []
-  const answer = results[0]
+  const look = lookupFood(q, all)
+  const quip = q.trim() ? quipFor(q) : null
+  // obvious non-food words ("fingers", "rainbow", "lego") get the psycho card unless it's an exact food name
+  const mode: 'answer' | 'maybe' | 'psycho' = !q.trim() ? 'answer' : quip && look.topScore < 100 ? 'psycho' : look.kind === 'answer' ? 'answer' : look.kind === 'maybe' ? 'maybe' : 'psycho'
+  const results = look.matches
+  const answer = mode === 'answer' ? look.top : undefined
 
   const open = (e: Entry) => setEdit(e.item ?? { preset: { name: e.name, status: e.status, limit: e.limit, notes: e.notes } })
 
@@ -60,6 +65,17 @@ export function Nutrition() {
 
       {q.trim() ? (
         <>
+          {mode === 'maybe' && (
+            <div className="card verdict unknown">
+              <span className="verdict-icon" aria-hidden>
+                🤔
+              </span>
+              <div className="verdict-text">
+                <strong className="verdict-title">Did you mean…?</strong>
+                <span className="small">Keep typing, or tap one below.</span>
+              </div>
+            </div>
+          )}
           {answer ? (
             <div className={'card verdict ' + answer.status}>
               <span className="verdict-icon" aria-hidden>
@@ -79,27 +95,24 @@ export function Nutrition() {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="card verdict unknown">
-              <span className="verdict-icon" aria-hidden>
-                🤔
+          ) : mode === 'maybe' ? null : (
+            <div className="card psycho">
+              <PsychoArt query={q} size={130} />
+              <strong className="psycho-title">DON’T BE A PSYCHO</strong>
+              <span className="psycho-line">{psychoLine(q)}</span>
+              <span className="muted small">
+                If “{q.trim()}” really is a food we don’t know, ask Dr. Novick first.{' '}
+                <button className="link small" onClick={() => setEdit({ preset: { name: q.trim(), status: 'limit' } })}>
+                  Add it
+                </button>
               </span>
-              <div className="verdict-text">
-                <strong className="verdict-title">Not sure</strong>
-                <span className="small">“{q.trim()}” isn’t in our food guide. Ask Dr. Novick before giving it to EJ.</span>
-                <div className="quick-row" style={{ marginTop: 6 }}>
-                  <button className="btn ghost small" onClick={() => setEdit({ preset: { name: q.trim(), status: 'limit' } })}>
-                    + Add it to the list
-                  </button>
-                </div>
-              </div>
             </div>
           )}
-          {results.length > 1 && (
+          {mode !== 'psycho' && results.length > (answer ? 1 : 0) && (
             <>
-              <h3 className="section-title">Other matches</h3>
+              <h3 className="section-title">{answer ? 'Other matches' : 'Foods that start like that'}</h3>
               <ul className="list">
-                {results.slice(1, 8).map((e) => (
+                {results.slice(answer ? 1 : 0, 8).map((e) => (
                   <FoodRow key={e.key} e={e} onOpen={() => open(e)} />
                 ))}
               </ul>

@@ -306,7 +306,7 @@ export function normalizeFood(s: string) {
 }
 
 /** Singular-ish form so "apple" finds "Apples" and "strawberries" finds "Strawberries". */
-function stem(w: string) {
+export function stem(w: string) {
   if (w.endsWith('ies')) return w.slice(0, -3) + 'y'
   if (w.endsWith('oes')) return w.slice(0, -2)
   if (w.endsWith('es') && /(ch|sh|s|x)es$/.test(w)) return w.slice(0, -2)
@@ -324,9 +324,12 @@ export function matchScore(query: string, f: { name: string; aliases?: string[] 
   if (!q) return 0
   let best = 0
   for (const t of terms(f)) {
+    const words = t.split(' ')
     if (t === q) best = Math.max(best, 100)
-    else if (t.startsWith(q) || t.split(' ').some((w) => w === q)) best = Math.max(best, 80)
-    else if (t.split(' ').some((w) => w.startsWith(q))) best = Math.max(best, 60)
+    else if (words.some((w) => w === q) || q.split(' ').every((qw) => words.includes(qw))) best = Math.max(best, 80)
+    // a prefix only counts as an answer when most of the word is typed ("appl" → apples, but not "rock" → rocket)
+    else if (words.some((w) => w.startsWith(q) && q.length / w.length >= 0.75)) best = Math.max(best, 80)
+    else if (words.some((w) => w.startsWith(q))) best = Math.max(best, 60)
     else if (q.length >= 3 && t.includes(q)) best = Math.max(best, 40)
     else if (q.length >= 4 && q.includes(t) && t.length >= 4) best = Math.max(best, 30)
   }
@@ -337,7 +340,7 @@ export function searchFoods<T extends { name: string; aliases?: string[] }>(quer
   return foods
     .map((f) => ({ f, s: matchScore(query, f) }))
     .filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s || a.f.name.localeCompare(b.f.name))
+    .sort((a, b) => b.s - a.s || a.f.name.length - b.f.name.length || a.f.name.localeCompare(b.f.name))
     .map((x) => x.f)
 }
 
@@ -345,4 +348,15 @@ export function sameFood(a: string, b: string) {
   const na = normalizeFood(a).split(/[ /&-]+/).map(stem).join(' ')
   const nb = normalizeFood(b).split(/[ /&-]+/).map(stem).join(' ')
   return na === nb
+}
+
+/** Best match and how sure we are: 'answer' (show yes/no), 'maybe' (did you mean…), 'none'. */
+export function lookupFood<T extends { name: string; aliases?: string[] }>(query: string, foods: T[]) {
+  const scored = foods
+    .map((f) => ({ f, s: matchScore(query, f) }))
+    .filter((x) => x.s > 0)
+    .sort((a, b) => b.s - a.s || a.f.name.length - b.f.name.length || a.f.name.localeCompare(b.f.name))
+  const top = scored[0]
+  const kind: 'answer' | 'maybe' | 'none' = !top ? 'none' : top.s >= 80 ? 'answer' : 'maybe'
+  return { kind, top: top?.f, topScore: top?.s ?? 0, matches: scored.map((x) => x.f) }
 }
