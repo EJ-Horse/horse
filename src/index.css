@@ -1147,3 +1147,17 @@ img.hero-img {
   right: auto;
   background: var(--accent);
 }
+
+.rider-hero {
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
+}
+.rider-hero img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 40% 40%;
+}

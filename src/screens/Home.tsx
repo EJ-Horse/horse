@@ -135,7 +135,10 @@ export function RiderHub() {
   const left = todos.filter((t) => !isDoneThisWeek(t.data)).length
   const excellent = skills.filter((s) => s.data.rating === 'excellent').length
   return (
-    <Screen title="Rider" back={false}>
+    <Screen title="Sofía" back={false}>
+      <figure className="rider-hero">
+        <img src={`${import.meta.env.BASE_URL}sofia-ej.jpg`} alt="Sofía with EJ" />
+      </figure>
       <div className="tiles">
         <Tile to="rider/skills" icon="🏆" title="Skills" sub={`${excellent}/${skills.length} excellent`} />
         <Tile to="rider/tips" icon="💡" title="Tips" sub="Cues & videos" />
