@@ -1161,3 +1161,59 @@ img.hero-img {
   object-fit: cover;
   object-position: 40% 40%;
 }
+
+/* rides */
+.week-rides {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.week-ride {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.week-ride-when {
+  display: flex;
+  flex-direction: column;
+}
+.week-ride.is-upcoming .week-ride-when {
+  opacity: 0.65;
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tag.feel-great {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.tag.feel-tough {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.chips .tag {
+  margin-left: 0;
+}
+.schedule-rows {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.schedule-rows li {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.9fr auto;
+  gap: 6px;
+  align-items: center;
+}
+.schedule-rows select,
+.schedule-rows input {
+  padding: 8px 6px;
+}

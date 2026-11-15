@@ -4,8 +4,9 @@ import { ageFrom, daysBetween, dueLabel, dueState, formatDate, today, monthKey }
 import { go } from '../lib/router'
 import { useItems, useSingle, updateItem, type Item } from '../lib/store'
 import { supabase } from '../lib/supabase'
-import type { CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
+import type { CoachEntry, RideSchedule, CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
 import { careNextDue, lastVisit } from './Health'
+import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
 import { isDoneThisWeek } from './Weekly'
 import { money } from './Costs'
 
@@ -84,7 +85,7 @@ export function Home() {
 
       <div className="tiles">
         <Tile to="horse" icon="🐴" title="Horse" sub="Health, photos, food, looks, shopping, costs" />
-        <Tile to="rider" icon="🏇" title="Rider" sub="Skills, tips, coach, weekly, fears" />
+        <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tips, weekly, fears" />
       </div>
 
       {p.vetPhone || p.farrierPhone ? (
@@ -134,6 +135,9 @@ export function RiderHub() {
   const todos = useItems<Todo>('todo').filter((t) => !t.data.oneOff || !t.data.doneWeek || isDoneThisWeek(t.data))
   const left = todos.filter((t) => !isDoneThisWeek(t.data)).length
   const excellent = skills.filter((s) => s.data.rating === 'excellent').length
+  const rides = useItems<CoachEntry>('coach')
+  const schedule = useSingle<RideSchedule>('rideSchedule')?.data.slots ?? DEFAULT_SCHEDULE
+  const ridesDue = weekSlots(schedule, rides.map((r) => r.data), today()).filter((s) => s.state === 'due').length
   return (
     <Screen title="Sofía" back={false}>
       <figure className="rider-hero">
@@ -142,7 +146,7 @@ export function RiderHub() {
       <div className="tiles">
         <Tile to="rider/skills" icon="🏆" title="Skills" sub={`${excellent}/${skills.length} excellent`} />
         <Tile to="rider/tips" icon="💡" title="Tips" sub="Cues & videos" />
-        <Tile to="rider/coach" icon="🎥" title="Coach" sub="Classes & feedback" />
+        <Tile to="rider/coach" icon="🏇" title="Rides" sub="Lessons & solo rides" badge={ridesDue || undefined} />
         <Tile to="rider/weekly" icon="✅" title="This week" sub={left ? `${left} left` : 'All done'} badge={left || undefined} />
         <Tile to="rider/fears" icon="😨" title="What scares EJ" sub={fears.length ? `${fears.length} active` : 'Nothing'} />
       </div>

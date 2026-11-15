@@ -105,15 +105,28 @@ export type Skill = {
   ratedOn?: string
 }
 
+export type RideType = 'lesson' | 'solo'
+export const ACTIVITIES = ['Walk', 'Trot', 'Canter', 'Jumping', 'Poles', 'Flatwork', 'Dressage test', 'Lunging', 'Bareback', 'Trail', 'Groundwork'] as const
+export type Feel = 'great' | 'ok' | 'tough'
+
+/** One ride: a lesson with the teacher or a solo ride. Stored as kind 'coach' (older entries are lessons). */
 export type CoachEntry = {
   date: string
   title: string
+  type?: RideType
+  time?: string
+  activities?: string[]
+  feel?: Feel
   clip?: string
   link?: string
   skills?: string[]
   notes?: string
   feedback?: string
 }
+
+/** Weekly plan. day: 0 = Monday … 6 = Sunday; time 'HH:MM'. */
+export type RideSlot = { day: number; time: string; type: RideType }
+export type RideSchedule = { slots: RideSlot[] }
 
 export type Todo = { text: string; doneWeek?: string; doneBy?: string; oneOff?: boolean }
 
