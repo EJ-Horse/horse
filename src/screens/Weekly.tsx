@@ -2,71 +2,120 @@ import { useState } from 'react'
 import { ErrorText, Field, SaveBar, Screen, Segmented, Sheet, AddButton, useDraft } from '../components/ui'
 import { addDays, formatDate, parseDate, today, weekStart } from '../lib/dates'
 import { addItem, getCurrentUserId, removeItem, updateItem, useItems, usePeople, type Item } from '../lib/store'
-import { normalizeReaction, REACTIONS, type Fear, type Reaction, type Todo } from '../lib/types'
+import { normalizeReaction, REACTIONS, type Fear, type Reaction, type Repeat, type Todo } from '../lib/types'
+import { REPEAT_LABEL, repeatLabel, repeatOf, todoStatus, visibleTodos } from '../lib/todos'
 
-export function isDoneThisWeek(t: Todo, now = today()) {
-  return t.doneWeek === weekStart(now)
+export function isTaskDone(t: Todo, now = today()) {
+  return todoStatus(t, now).done
 }
 
-/** Weekly checklist: ticks reset every Monday, so Sunday is the day to finish them. */
+const REPEATS: Repeat[] = ['weekly', 'biweekly', 'monthly', 'quarterly', 'once', 'days']
+
+function RepeatPicker({ repeat, everyDays, onChange }: { repeat: Repeat; everyDays?: number; onChange: (r: Repeat, days?: number) => void }) {
+  return (
+    <div className="repeat-picker">
+      <div className="chips" role="radiogroup" aria-label="Repeats">
+        {REPEATS.map((r) => (
+          <button key={r} type="button" role="radio" aria-checked={repeat === r} className={repeat === r ? 'chip on' : 'chip'} onClick={() => onChange(r, r === 'days' ? everyDays ?? 3 : undefined)}>
+            {REPEAT_LABEL[r]}
+          </button>
+        ))}
+      </div>
+      {repeat === 'days' && (
+        <label className="check small">
+          Every
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            className="days-input"
+            value={everyDays ?? 3}
+            onChange={(e) => onChange('days', Math.max(1, Number(e.target.value) || 1))}
+          />
+          days
+        </label>
+      )}
+    </div>
+  )
+}
+
+/** Tasks for Sofía and you. Each one repeats weekly (default), monthly, etc., or just once. */
 export function Weekly() {
   const todos = useItems<Todo>('todo')
   const people = usePeople()
   const [text, setText] = useState('')
-  const [oneOff, setOneOff] = useState(false)
+  const [repeat, setRepeat] = useState<Repeat>('weekly')
+  const [everyDays, setEveryDays] = useState<number | undefined>()
+  const [edit, setEdit] = useState<Item<Todo> | null>(null)
   const now = today()
   const sunday = addDays(weekStart(now), 6)
   const isSunday = parseDate(now).getDay() === 0
-  // One-off tasks disappear the week after they were done.
-  const visible = todos.filter((t) => !t.data.oneOff || !t.data.doneWeek || t.data.doneWeek === weekStart(now))
-  const done = visible.filter((t) => isDoneThisWeek(t.data, now))
-  const left = visible.filter((t) => !isDoneThisWeek(t.data, now))
+  const visible = visibleTodos(todos, now)
+  const status = new Map(visible.map((t) => [t.id, todoStatus(t.data, now)]))
+  const left = visible.filter((t) => !status.get(t.id)!.done)
+  const done = visible.filter((t) => status.get(t.id)!.done).sort((a, b) => (status.get(a.id)!.nextDue ?? '9').localeCompare(status.get(b.id)!.nextDue ?? '9'))
+  const weeklyLeft = left.filter((t) => repeatOf(t.data) === 'weekly').length
 
   async function add() {
     if (!text.trim()) return
-    await addItem('todo', { text: text.trim(), oneOff: oneOff || undefined })
+    await addItem('todo', { text: text.trim(), repeat, everyDays: repeat === 'days' ? everyDays ?? 3 : undefined })
     setText('')
+    setRepeat('weekly')
+    setEveryDays(undefined)
   }
 
   function toggle(t: Item<Todo>) {
-    const on = isDoneThisWeek(t.data, now)
-    void updateItem(t.id, { ...t.data, doneWeek: on ? undefined : weekStart(now), doneBy: on ? undefined : getCurrentUserId() ?? undefined })
+    const on = status.get(t.id)!.done
+    void updateItem(t.id, {
+      ...t.data,
+      lastDone: on ? undefined : now,
+      doneWeek: undefined,
+      doneBy: on ? undefined : getCurrentUserId() ?? undefined,
+    })
+  }
+
+  const row = (t: Item<Todo>) => {
+    const st = status.get(t.id)!
+    const r = repeatOf(t.data)
+    return (
+      <li key={t.id} className={st.done ? 'done' : ''}>
+        <label>
+          <input type="checkbox" checked={st.done} onChange={() => toggle(t)} />
+          <span>
+            <span className="task-text">{t.data.text}</span>
+            {r !== 'weekly' && <span className="tag">{repeatLabel(t.data)}</span>}
+            {st.done && (
+              <span className="by">
+                {t.data.doneBy && people[t.data.doneBy] ? ` · ${people[t.data.doneBy]}` : ''}
+                {st.nextDue ? ` · back ${formatDate(st.nextDue)}` : ''}
+              </span>
+            )}
+          </span>
+        </label>
+        <button className="icon-btn small" aria-label={`Edit ${t.data.text}`} onClick={() => setEdit(t)}>
+          ✎
+        </button>
+      </li>
+    )
   }
 
   return (
-    <Screen title="This week">
-      <div className={'card ' + (isSunday ? 'warn' : 'soft')}>
-        <strong>{isSunday ? '☀️ It’s Sunday: finish the list!' : `Finish by Sunday ${formatDate(sunday)}`}</strong>
+    <Screen title="Tasks">
+      <div className={'card ' + (isSunday && weeklyLeft ? 'warn' : 'soft')}>
+        <strong>
+          {isSunday && weeklyLeft ? '☀️ It’s Sunday: finish the weekly tasks!' : `Weekly tasks: finish by Sunday ${formatDate(sunday)}`}
+        </strong>
         <p className="small" style={{ margin: '4px 0 0' }}>
-          {done.length} of {visible.length} done. Weekly tasks reset on Monday.
+          {done.length} of {visible.length} done. Each task comes back on its own schedule.
         </p>
       </div>
-      <ul className="checklist">
-        {[...left, ...done].map((t) => {
-          const on = isDoneThisWeek(t.data, now)
-          return (
-            <li key={t.id} className={on ? 'done' : ''}>
-              <label>
-                <input type="checkbox" checked={on} onChange={() => toggle(t)} />
-                <span>
-                  {t.data.text}
-                  {t.data.oneOff && <span className="tag">once</span>}
-                  {on && t.data.doneBy && people[t.data.doneBy] && <span className="by"> · {people[t.data.doneBy]}</span>}
-                </span>
-              </label>
-              <button
-                className="icon-btn small"
-                aria-label={`Delete ${t.data.text}`}
-                onClick={() => {
-                  if (confirm(`Delete “${t.data.text}”?`)) void removeItem(t.id)
-                }}
-              >
-                ×
-              </button>
-            </li>
-          )
-        })}
-      </ul>
+      {left.length > 0 && <ul className="checklist">{left.map(row)}</ul>}
+      {done.length > 0 && (
+        <>
+          <h3 className="section-title">Done</h3>
+          <ul className="checklist">{done.map(row)}</ul>
+        </>
+      )}
       <div className="card soft">
         <div className="input-row">
           <input placeholder="Add a task" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && void add()} />
@@ -74,11 +123,48 @@ export function Weekly() {
             Add
           </button>
         </div>
-        <label className="check small">
-          <input type="checkbox" checked={oneOff} onChange={(e) => setOneOff(e.target.checked)} /> Just this week (doesn’t repeat)
-        </label>
+        <span className="field-label">Repeats</span>
+        <RepeatPicker
+          repeat={repeat}
+          everyDays={everyDays}
+          onChange={(r, d) => {
+            setRepeat(r)
+            setEveryDays(d)
+          }}
+        />
       </div>
+      {edit && <TaskSheet item={edit} onClose={() => setEdit(null)} />}
     </Screen>
+  )
+}
+
+function TaskSheet({ item, onClose }: { item: Item<Todo>; onClose: () => void }) {
+  const [d, set, setDraft] = useDraft<Todo>({ ...item.data, repeat: repeatOf(item.data), oneOff: undefined })
+  const [err, setErr] = useState('')
+  async function save() {
+    if (!d.text.trim()) return setErr('Add the task.')
+    try {
+      await updateItem(item.id, { ...d, text: d.text.trim(), everyDays: d.repeat === 'days' ? d.everyDays ?? 3 : undefined })
+      onClose()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e))
+    }
+  }
+  return (
+    <Sheet open title="Task" onClose={onClose}>
+      <Field label="Task">
+        <input value={d.text} onChange={(e) => set('text', e.target.value)} />
+      </Field>
+      <span className="field-label">Repeats</span>
+      <RepeatPicker repeat={d.repeat ?? 'weekly'} everyDays={d.everyDays} onChange={(r, days) => setDraft((x) => ({ ...x, repeat: r, everyDays: days }))} />
+      <ErrorText error={err} />
+      <SaveBar
+        onSave={() => void save()}
+        onDelete={() => {
+          void removeItem(item.id).then(onClose)
+        }}
+      />
+    </Sheet>
   )
 }
 

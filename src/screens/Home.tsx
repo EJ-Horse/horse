@@ -12,7 +12,8 @@ import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '..
 import type { Attention, HorseEvent } from '../lib/types'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
 import { closedOn } from '../lib/events'
-import { isDoneThisWeek } from './Weekly'
+import { isTaskDone } from './Weekly'
+import { visibleTodos } from '../lib/todos'
 import { money } from './Costs'
 
 type Alert = { key: string; text: string; sub: string; state: string; to: string }
@@ -46,8 +47,8 @@ export function Home() {
   const manual = useOpenAttention()
   const [adding, setAdding] = useState(false)
   const [openItem, setOpenItem] = useState<Item<Attention> | null>(null)
-  const todos = useItems<Todo>('todo').filter((t) => !t.data.oneOff || !t.data.doneWeek || isDoneThisWeek(t.data))
-  const done = todos.filter((t) => isDoneThisWeek(t.data)).length
+  const todos = visibleTodos(useItems<Todo>('todo'), today())
+  const done = todos.filter((t) => isTaskDone(t.data)).length
   const [editing, setEditing] = useState(false)
   return (
     <Screen title={p.name || 'EJ'} back={false}>
@@ -107,7 +108,7 @@ export function Home() {
 
       <button className="card tap week-card" onClick={() => go('rider/weekly')}>
         <span>
-          <strong>This week</strong>
+          <strong>Tasks</strong>
           <span className="muted small"> · {done} of {todos.length} done</span>
         </span>
         <span className="progress-track">
@@ -118,7 +119,7 @@ export function Home() {
 
       <div className="tiles">
         <Tile to="horse" icon="🐴" title="Horse" sub="Health, photos, food, looks, shopping, costs" />
-        <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tips, weekly, fears" />
+        <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tips, tasks, fears" />
       </div>
 
       <ContactButtons vet />
@@ -153,8 +154,8 @@ export function HorseHub() {
 export function RiderHub() {
   const skills = useItems<Skill>('skill')
   const fears = useItems<Fear>('fear').filter((f) => f.data.status !== 'fine now')
-  const todos = useItems<Todo>('todo').filter((t) => !t.data.oneOff || !t.data.doneWeek || isDoneThisWeek(t.data))
-  const left = todos.filter((t) => !isDoneThisWeek(t.data)).length
+  const todos = visibleTodos(useItems<Todo>('todo'), today())
+  const left = todos.filter((t) => !isTaskDone(t.data)).length
   const excellent = skills.filter((s) => s.data.rating === 'excellent').length
   const rides = useItems<CoachEntry>('coach')
   const schedule = useSingle<RideSchedule>('rideSchedule')?.data.slots ?? DEFAULT_SCHEDULE
@@ -171,7 +172,7 @@ export function RiderHub() {
         <Tile to="rider/skills" icon="🏆" title="Skills" sub={`${excellent}/${skills.length} excellent`} />
         <Tile to="rider/tips" icon="💡" title="Tips" sub="Cues & videos" />
         <Tile to="rider/coach" icon="🏇" title="Rides" sub="Lessons & solo rides" badge={ridesDue || undefined} />
-        <Tile to="rider/weekly" icon="✅" title="This week" sub={left ? `${left} left` : 'All done'} badge={left || undefined} />
+        <Tile to="rider/weekly" icon="✅" title="Tasks" sub={left ? `${left} left` : 'All done'} badge={left || undefined} />
         <Tile to="rider/fears" icon="😨" title="What scares EJ" sub={fears.length ? `${fears.length} active` : 'Nothing'} />
       </div>
     </Screen>

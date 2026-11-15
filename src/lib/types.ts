@@ -130,7 +130,18 @@ export type CoachEntry = {
 export type RideSlot = { day: number; time: string; type: RideType }
 export type RideSchedule = { slots: RideSlot[] }
 
-export type Todo = { text: string; doneWeek?: string; doneBy?: string; oneOff?: boolean }
+/** How often a task comes back. 'days' uses everyDays. */
+export type Repeat = 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'once' | 'days'
+export type Todo = {
+  text: string
+  repeat?: Repeat
+  everyDays?: number
+  lastDone?: string
+  doneBy?: string
+  /** Older fields: doneWeek = Monday of the week it was done; oneOff = once. */
+  doneWeek?: string
+  oneOff?: boolean
+}
 
 export const REACTIONS = ['curious', 'bothered', 'freaks out'] as const
 export type Reaction = (typeof REACTIONS)[number]

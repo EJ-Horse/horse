@@ -956,6 +956,8 @@ figcaption {
 }
 .checklist li.done span {
   color: var(--muted);
+}
+.checklist li.done .task-text {
   text-decoration: line-through;
 }
 .history {
@@ -1404,4 +1406,19 @@ img.hero-img {
   display: flex;
   gap: 8px;
   align-items: flex-start;
+}
+
+.repeat-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.days-input {
+  width: 72px;
+  padding: 6px 8px;
+}
+
+.repeat-picker .chip {
+  text-transform: none;
 }
