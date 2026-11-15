@@ -8,6 +8,7 @@ import { Lock, NewPasscode, NotConfigured } from './screens/Lock'
 import { Home, HorseHub, NamePrompt, RiderHub } from './screens/Home'
 import { Health } from './screens/Health'
 import { Photos, PhotoTimeline } from './screens/Photos'
+import { FunPhotos } from './screens/FunPhotos'
 import { Nutrition } from './screens/Nutrition'
 import { Beautify } from './screens/Beautify'
 import { Shopping } from './screens/Shopping'
@@ -107,6 +108,7 @@ function Page({ route }: { route: string }) {
     if (page === 'photos' && sub === 'issue' && extra) return <PhotoTimeline issue={extra} />
     if (page === 'photos' && sub) return <PhotoTimeline part={sub as BodyPart} />
     if (page === 'photos') return <Photos />
+    if (page === 'fun') return <FunPhotos />
     if (page === 'nutrition') return <Nutrition />
     if (page === 'beautify') return <Beautify />
     if (page === 'shopping') return <Shopping />

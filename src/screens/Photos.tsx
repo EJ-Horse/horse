@@ -16,7 +16,7 @@ export function Photos() {
   const [adding, setAdding] = useState(false)
   const issues = [...new Set(photos.map((p) => p.data.issue).filter(Boolean))] as string[]
   return (
-    <Screen title="Photos" action={<AddButton onClick={() => setAdding(true)} label="Photo" />}>
+    <Screen title="Body photos" action={<AddButton onClick={() => setAdding(true)} label="Photo" />}>
       <p className="muted small">
         Take photos of each part from the same angle every so often. Open a part to see its history and compare old and new photos side by side.
       </p>

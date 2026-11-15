@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AddButton, ErrorText, Field, LinkOut, SaveBar, Screen, Segmented, Sheet, useDraft } from '../components/ui'
 import { formatDate, today } from '../lib/dates'
 import { addItem, removeItem, updateItem, useItems, type Item } from '../lib/store'
@@ -93,6 +93,13 @@ function TrickSheet({ row, nameOf, onClose }: { row: Row; nameOf: (k: string) =>
   const p = row.progress?.data
   const status: TrickStatus = p?.status ?? 'not started'
   const [notes, setNotes] = useState(p?.notes ?? '')
+  // save notes shortly after typing stops
+  useEffect(() => {
+    if (notes === (p?.notes ?? '')) return
+    const t = setTimeout(() => void save({ notes: notes || undefined }), 500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes])
   const [done, setDone] = useState<number[]>([])
 
   async function save(patch: Partial<TrickProgress>) {
@@ -134,7 +141,7 @@ function TrickSheet({ row, nameOf, onClose }: { row: Row; nameOf: (k: string) =>
         </span>
       </div>
       <Field label="Notes">
-        <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={() => notes !== (p?.notes ?? '') && void save({ notes: notes || undefined })} placeholder="How did it go?" />
+        <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="How did it go?" />
       </Field>
       <div className="quick-row">
         <LinkOut href={row.video ?? 'https://www.youtube.com/results?search_query=' + encodeURIComponent(`teach horse ${row.name} trick`)}>▶︎ Watch how</LinkOut>

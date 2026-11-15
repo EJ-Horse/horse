@@ -9,7 +9,7 @@ import { careNextDue, lastVisit } from './Health'
 import { CodesBanner, ContactButtons } from '../components/Contacts'
 import { NextEvent } from '../components/NextEvent'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
-import type { Attention, HorseEvent, Injury, TrickProgress } from '../lib/types'
+import type { Attention, FunPhoto, HorseEvent, Injury, TrickProgress } from '../lib/types'
 import { injuryDay, latestCheck, needsVet } from '../lib/injury'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
 import { closedOn } from '../lib/events'
@@ -137,7 +137,7 @@ export function Home() {
       </button>
 
       <div className="tiles">
-        <Tile to="horse" icon="🐴" title="Horse" sub="Health, photos, food, looks, shopping, costs" />
+        <Tile to="horse" icon="🐴" title="Horse" sub="Health, photos, food, looks, shopping, costs, fun" />
         <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tricks, tasks, fears" />
       </div>
 
@@ -149,6 +149,7 @@ export function Home() {
 
 export function HorseHub() {
   const photos = useItems<HorsePhoto>('photo')
+  const funCount = useItems<FunPhoto>('funphoto').length
   const shop = useItems<ShopItem>('shop').filter((s) => !s.data.bought)
   const costs = useItems<Cost>('cost')
   const cur = useSingle<Profile>('profile')?.data.currency || '$'
@@ -160,7 +161,8 @@ export function HorseHub() {
       <VetCard />
       <div className="tiles">
         <Tile to="horse/health" icon="🩺" title="Health" sub="Vaccines, care, symptoms" badge={alerts || undefined} />
-        <Tile to="horse/photos" icon="📸" title="Photos" sub={`${photos.length} photos`} />
+        <Tile to="horse/photos" icon="🩻" title="Body photos" sub={`${photos.length} · track changes`} />
+        <Tile to="horse/fun" icon="🎉" title="Fun photos" sub={funCount ? `${funCount} photos` : 'Just for fun'} />
         <Tile to="horse/nutrition" icon="🥕" title="Nutrition" sub="OK, limit, never" />
         <Tile to="horse/beautify" icon="🎀" title="Beautify" sub="Braids & looks" />
         <Tile to="horse/shopping" icon="🛒" title="Shopping" sub={shop.length ? `${shop.length} to buy` : 'List'} />

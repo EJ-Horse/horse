@@ -1831,3 +1831,37 @@ img.hero-img {
   gap: 2px;
   min-width: 0;
 }
+
+/* fun photos */
+.fun-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.fun-head .upload {
+  margin-bottom: 0;
+}
+.fun-filter {
+  flex: none;
+}
+.fun-big {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 14px;
+  background: var(--soft);
+  display: block;
+}
+.fav-btn {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.fav-btn.on {
+  border-color: #e5484d;
+  color: #e5484d;
+}

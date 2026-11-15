@@ -250,3 +250,6 @@ export type TrickProgress = {
   notes?: string
   custom?: { name: string; level: 'easy' | 'medium' | 'hard'; what: string; steps: string }
 }
+
+/** Just-for-fun photo of EJ (separate from body/health photos). */
+export type FunPhoto = { path: string; date: string; caption?: string; favorite?: boolean }
