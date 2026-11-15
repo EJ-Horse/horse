@@ -1487,3 +1487,28 @@ img.hero-img {
   border-color: var(--muted);
   font-weight: 600;
 }
+
+/* skill ⋯ button */
+.skill-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.dots {
+  flex: none;
+  border: 0;
+  background: var(--soft);
+  color: var(--muted);
+  border-radius: 999px;
+  width: 30px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 0 4px;
+}
+.skill-about {
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 6px 0 12px;
+}

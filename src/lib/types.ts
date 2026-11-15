@@ -105,6 +105,8 @@ export type Skill = {
   cues?: string
   video?: string
   ratedOn?: string
+  /** What the skill is. Falls back to the built-in explanation for starter skills. */
+  description?: string
 }
 
 export type RideType = 'lesson' | 'solo'

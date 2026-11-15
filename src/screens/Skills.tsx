@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AddButton, Chips, ErrorText, Field, LinkOut, SaveBar, Screen, Segmented, Sheet, useDraft } from '../components/ui'
 import { youtubeSearch } from '../lib/beautify'
+import { SKILL_INFO } from '../lib/skillInfo'
 import { formatDate, today } from '../lib/dates'
 import { addItem, removeItem, updateItem, useItems, type Item } from '../lib/store'
 import type { Discipline, Level, Rating, Skill } from '../lib/types'
@@ -34,6 +35,7 @@ export function Skills() {
   const skills = useItems<Skill>('skill')
   const [disc, setDisc] = useDiscipline()
   const [edit, setEdit] = useState<Item<Skill> | 'new' | null>(null)
+  const [info, setInfo] = useState<Item<Skill> | null>(null)
   const mine = skills.filter((s) => s.data.discipline === disc)
   const rated = mine.filter((s) => s.data.rating)
   const excellent = mine.filter((s) => s.data.rating === 'excellent').length
@@ -62,8 +64,13 @@ export function Skills() {
             <ul className="list">
               {group.map((s) => (
                 <li key={s.id} className="card">
-                  <div className="row-between tap" onClick={() => setEdit(s)}>
-                    <strong>{s.data.name}</strong>
+                  <div className="row-between">
+                    <span className="skill-name tap" onClick={() => setInfo(s)}>
+                      <strong>{s.data.name}</strong>
+                      <button className="dots" aria-label={`What is ${s.data.name}?`} onClick={(e) => (e.stopPropagation(), setInfo(s))}>
+                        ⋯
+                      </button>
+                    </span>
                     {s.data.ratedOn && <span className="muted small">{formatDate(s.data.ratedOn)}</span>}
                   </div>
                   <div className="rating-row" role="radiogroup" aria-label={`Rate ${s.data.name}`}>
@@ -86,7 +93,53 @@ export function Skills() {
         )
       })}
       {edit && <SkillSheet item={edit === 'new' ? null : edit} discipline={disc} onClose={() => setEdit(null)} />}
+      {info && (
+        <SkillInfoSheet
+          item={info}
+          onEdit={() => {
+            setEdit(info)
+            setInfo(null)
+          }}
+          onClose={() => setInfo(null)}
+        />
+      )}
     </Screen>
+  )
+}
+
+export function skillDescription(s: Skill) {
+  return s.description?.trim() || SKILL_INFO[s.name] || ''
+}
+
+/** What a skill is, its cues and a video: opened from the ⋯ button. */
+function SkillInfoSheet({ item, onEdit, onClose }: { item: Item<Skill>; onEdit: () => void; onClose: () => void }) {
+  const s = item.data
+  const about = skillDescription(s)
+  const cues = (s.cues ?? '').split('\n').filter((l) => l.trim())
+  return (
+    <Sheet open title={s.name} onClose={onClose}>
+      <p className="muted small">
+        {cap(s.level)} · {cap(s.discipline)}
+        {s.rating && ` · ${RATING_ICON[s.rating]} ${s.rating}`}
+      </p>
+      {about ? <p className="skill-about">{about}</p> : <p className="muted">No explanation yet. Tap Edit to add one.</p>}
+      {cues.length > 0 && (
+        <>
+          <span className="field-label">How to ride it</span>
+          <ul className="bullets">
+            {cues.map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      <div className="quick-row" style={{ marginTop: 12 }}>
+        <LinkOut href={s.video || youtubeSearch(`${s.discipline} ${s.name} riding lesson`)}>▶︎ Watch video</LinkOut>
+        <button className="btn ghost small" onClick={onEdit}>
+          Edit
+        </button>
+      </div>
+    </Sheet>
   )
 }
 
@@ -159,6 +212,14 @@ function SkillSheet({ item, discipline, onClose }: { item: Item<Skill> | null; d
       </Field>
       <Field label="Level">
         <Segmented value={d.level} options={LEVELS} onChange={(v) => set('level', v)} />
+      </Field>
+      <Field label="What it is">
+        <textarea
+          rows={3}
+          value={d.description ?? (item ? SKILL_INFO[item.data.name] ?? '' : '')}
+          onChange={(e) => set('description', e.target.value)}
+          placeholder="A short explanation of the skill"
+        />
       </Field>
       <Field label="Cues & tips (one per line)">
         <textarea rows={5} value={d.cues ?? ''} onChange={(e) => set('cues', e.target.value)} />
