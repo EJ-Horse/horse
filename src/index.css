@@ -1579,3 +1579,94 @@ img.hero-img {
   border: 1px dashed var(--line);
   border-radius: var(--radius);
 }
+
+/* nutrition search + answer */
+.food-search {
+  position: sticky;
+  top: calc(56px + env(safe-area-inset-top));
+  z-index: 4;
+}
+.search.big {
+  font-size: 17px;
+  padding: 13px 44px 13px 16px;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.08);
+}
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.verdict {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-width: 2px;
+}
+.verdict.allowed {
+  background: var(--ok-bg);
+  border-color: var(--ok);
+}
+.verdict.limit {
+  background: var(--warn-bg);
+  border-color: var(--warn);
+}
+.verdict.forbidden {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+}
+.verdict.unknown {
+  background: var(--soft);
+  border-color: var(--line);
+}
+.verdict-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+.verdict-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.verdict-title {
+  font-size: 24px;
+  line-height: 1.1;
+}
+.verdict.allowed .verdict-title {
+  color: var(--ok);
+}
+.verdict.limit .verdict-title {
+  color: var(--warn);
+}
+.verdict.forbidden .verdict-title {
+  color: var(--bad);
+}
+.verdict-food {
+  font-size: 17px;
+  font-weight: 600;
+}
+.guide-group {
+  padding: 10px 12px;
+}
+.guide-group .list {
+  margin-top: 8px;
+}
+/* the answer card uses status names as classes; don't inherit the orange "Max" style */
+.verdict.limit {
+  color: var(--ink);
+  font-weight: normal;
+}
+.verdict .limit {
+  color: var(--warn);
+  font-weight: 600;
+}
+.card.food.limit {
+  color: var(--ink);
+  font-weight: normal;
+}
+.card.food .limit {
+  color: var(--warn);
+  font-weight: 600;
+}
