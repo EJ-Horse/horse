@@ -8,6 +8,8 @@ export type Profile = {
   vetName?: string
   vetClinic?: string
   contacts?: Contact[]
+  /** Shopping suggestions marked 'already have it'. */
+  haveItems?: string[]
   codes?: Code[]
   vetPhone?: string
   farrierPhone?: string

@@ -1,14 +1,18 @@
 import { useState } from 'react'
-import { AddedBy, Chips, ErrorText, Screen } from '../components/ui'
+import { AddedBy, Chips, ErrorText, Screen, Segmented } from '../components/ui'
 import { formatDate, today } from '../lib/dates'
-import { addItem, removeItem, updateItem, useItems, type Item } from '../lib/store'
+import { addItem, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
+import { amazonSearch, inSeason, SUGGESTIONS, suggestionState, type Suggestion } from '../lib/suggestions'
 import { host, nameFromUrl } from '../lib/shop'
-import { SHOP_CATEGORIES, SHOP_ICON, type ShopCategory, type ShopItem } from '../lib/types'
+import { SHOP_CATEGORIES, SHOP_ICON, type Profile, type ShopCategory, type ShopItem } from '../lib/types'
 
 const catOf = (s: ShopItem): ShopCategory => s.category ?? 'Other'
 
 export function Shopping() {
+  const [tab, setTab] = useState<'list' | 'ideas'>('list')
   const list = useItems<ShopItem>('shop')
+  const profile = useSingle<Profile>('profile')
+  const open = openSuggestions(list.map((x) => x.data), profile?.data.haveItems ?? [])
   const [url, setUrl] = useState('')
   const [note, setNote] = useState('')
   const [category, setCategory] = useState<ShopCategory>('Tack')
@@ -37,8 +41,26 @@ export function Shopping() {
     }
   }
 
+  const tabs = (
+    <Segmented
+      value={tab}
+      options={['list', 'ideas'] as const}
+      labels={{ list: `🛒 List (${list.filter((x) => !x.data.bought).length})`, ideas: `💡 Suggestions (${open.length})` }}
+      onChange={setTab}
+    />
+  )
+  if (tab === 'ideas') {
+    return (
+      <Screen title="Shopping">
+        {tabs}
+        <Suggestions items={list.map((x) => x.data)} profile={profile} />
+      </Screen>
+    )
+  }
+
   return (
     <Screen title="Shopping">
+      {tabs}
       <div className="card soft">
         <div className="input-row">
           <input type="url" inputMode="url" placeholder="Paste an Amazon link" value={url} onChange={(e) => setUrl(e.target.value)} />
@@ -133,5 +155,105 @@ function ShopRow({ row }: { row: Item<ShopItem> }) {
         </button>
       </div>
     </li>
+  )
+}
+
+function openSuggestions(items: ShopItem[], have: string[]) {
+  const month = new Date().getMonth() + 1
+  return SUGGESTIONS.filter((s) => inSeason(s, month) && suggestionState(s, items, have) === 'open')
+}
+
+/** Things worth buying that aren't on the list yet. */
+function Suggestions({ items, profile }: { items: ShopItem[]; profile: Item<Profile> | undefined }) {
+  const have = profile?.data.haveItems ?? []
+  const [showCovered, setShowCovered] = useState(false)
+  const [busy, setBusy] = useState<string | null>(null)
+  const month = new Date().getMonth() + 1
+  const relevant = SUGGESTIONS.filter((s) => inSeason(s, month))
+  const state = new Map(relevant.map((s) => [s.key, suggestionState(s, items, have)]))
+  const open = relevant.filter((s) => state.get(s.key) === 'open')
+  const covered = relevant.filter((s) => state.get(s.key) !== 'open')
+
+  async function add(s: Suggestion) {
+    setBusy(s.key)
+    try {
+      await addItem('shop', { url: amazonSearch(s.name), note: s.name, category: s.category })
+    } finally {
+      setBusy(null)
+    }
+  }
+  function setHave(key: string, on: boolean) {
+    if (!profile) return
+    const next = on ? [...new Set([...have, key])] : have.filter((k) => k !== key)
+    void updateItem(profile.id, { ...profile.data, haveItems: next })
+  }
+
+  return (
+    <>
+      <p className="muted small">
+        Things most horse owners need, checked against your list. Tap <strong>+ Add</strong> to put one on the list, or <strong>Have it</strong> if you already own it.
+      </p>
+      {open.length === 0 && <p className="empty">🎉 You’ve got everything on our list covered.</p>}
+      {SHOP_CATEGORIES.map((c) => {
+        const group = open.filter((s) => s.category === c)
+        if (!group.length) return null
+        return (
+          <section key={c} className="shop-group">
+            <h4 className="shop-cat">
+              {SHOP_ICON[c]} {c}
+            </h4>
+            <ul className="list">
+              {group.map((s) => (
+                <li key={s.key} className="card idea">
+                  <div className="idea-text">
+                    <strong>
+                      {s.name}
+                      {s.essential && <span className="tag">essential</span>}
+                      {s.months && <span className="tag">seasonal</span>}
+                    </strong>
+                    <span className="muted small">{s.why}</span>
+                  </div>
+                  <div className="idea-actions">
+                    <button className="btn small" disabled={busy === s.key} onClick={() => void add(s)}>
+                      + Add
+                    </button>
+                    <button className="btn ghost small" onClick={() => setHave(s.key, true)}>
+                      Have it
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      })}
+      {covered.length > 0 && (
+        <div className="card soft">
+          <button className="row-between link-block" onClick={() => setShowCovered(!showCovered)}>
+            <strong className="small">✓ Already covered · {covered.length}</strong>
+            <span>{showCovered ? '−' : '+'}</span>
+          </button>
+          {showCovered && (
+            <ul className="list compact">
+              {covered.map((s) => {
+                const st = state.get(s.key)
+                return (
+                  <li key={s.key} className="row-between">
+                    <span>
+                      {s.name} <span className="muted small">· {st === 'bought' ? 'bought' : st === 'listed' ? 'on your list' : 'have it'}</span>
+                    </span>
+                    {st === 'have' && (
+                      <button className="link small" onClick={() => setHave(s.key, false)}>
+                        Undo
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </>
   )
 }
