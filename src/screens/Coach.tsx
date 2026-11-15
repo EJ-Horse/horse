@@ -3,7 +3,8 @@ import { AddButton, AddedBy, ErrorText, Field, LinkOut, MediaVideo, SaveBar, Scr
 import { parseDate, today } from '../lib/dates'
 import { DAY_NAMES, DEFAULT_SCHEDULE, rideType, timeLabel, weekSlots } from '../lib/rides'
 import { addItem, deleteMedia, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
-import { ACTIVITIES, type CoachEntry, type Feel, type RideSchedule, type RideSlot, type RideType, type Skill } from '../lib/types'
+import { closedOn } from '../lib/events'
+import { ACTIVITIES, type HorseEvent, type CoachEntry, type Feel, type RideSchedule, type RideSlot, type RideType, type Skill } from '../lib/types'
 
 const FEEL_LABEL: Record<Feel, string> = { great: '😊 Great', ok: '🙂 OK', tough: '😕 Tough' }
 const TYPE_LABEL: Record<RideType, string> = { lesson: '👩‍🏫 Lesson', solo: '🐴 Solo ride' }
@@ -24,10 +25,12 @@ export function Coach() {
   const [edit, setEdit] = useState<Item<CoachEntry> | { preset: Partial<CoachEntry> } | null>(null)
   const [editingSchedule, setEditingSchedule] = useState(false)
   const sorted = [...list].sort((a, b) => b.data.date.localeCompare(a.data.date) || (b.data.time ?? '').localeCompare(a.data.time ?? ''))
+  const events = useItems<HorseEvent>('event')
   const week = weekSlots(
     slots,
     list.map((x) => x.data),
     today(),
+    (d) => closedOn(events, d),
   )
   const lessons = list.filter((x) => rideType(x.data) === 'lesson').length
   const solos = list.length - lessons
@@ -63,6 +66,8 @@ export function Coach() {
                 >
                   Log it
                 </button>
+              ) : s.state === 'closed' ? (
+                <span className="muted small">🚫 Barn closed</span>
               ) : (
                 <span className="muted small">Upcoming</span>
               )}

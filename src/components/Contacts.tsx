@@ -12,25 +12,31 @@ export function telHref(phone: string) {
   return 'tel:' + phone.replace(/[^\d+]/g, '')
 }
 
+/** "Dr. Douglas Novick" -> "Dr. Novick" so the button stays short. */
+export function shortVetName(name: string) {
+  const words = name.replace(/^Dr\.?\s+/i, '').trim().split(/\s+/)
+  return words.length ? `Dr. ${words[words.length - 1]}` : name
+}
+
 export function smsHref(phone: string) {
   return 'sms:' + phone.replace(/[^\d+]/g, '')
 }
 
 /** 📞 buttons for the people you call most. A button without a number asks for one. */
-export function ContactButtons({ vet = false }: { vet?: boolean }) {
+export function ContactButtons({ vet = false, editable = !vet }: { vet?: boolean; editable?: boolean }) {
   const profile = useSingle<Profile>('profile')
   const p = profile?.data
   const contacts = p?.contacts ?? DEFAULT_CONTACTS
   const [editing, setEditing] = useState(false)
   return (
-    <div className="quick-row">
+    <div className="call-row">
       {vet && p?.vetPhone && (
-        <a className="btn secondary small" href={telHref(p.vetPhone)}>
-          📞 Vet{p.vetName ? ` (${p.vetName})` : ''}
+        <a className="call-btn" href={telHref(p.vetPhone)}>
+          📞 Vet{p.vetName ? ` (${shortVetName(p.vetName)})` : ''}
         </a>
       )}
       {vet && p?.farrierPhone && (
-        <a className="btn secondary small" href={telHref(p.farrierPhone)}>
+        <a className="call-btn" href={telHref(p.farrierPhone)}>
           📞 Farrier
         </a>
       )}
@@ -38,21 +44,21 @@ export function ContactButtons({ vet = false }: { vet?: boolean }) {
         c.phone ? (
           <a
             key={c.name}
-            className="btn secondary small"
+            className="call-btn"
             href={c.text ? smsHref(c.phone) : telHref(c.phone)}
             aria-label={`${c.text ? 'Text' : 'Call'} ${c.name}${c.role ? `, ${c.role}` : ''}`}
           >
             {c.text ? '💬' : '📞'} {c.name}
           </a>
         ) : (
-          <button key={c.name} className="btn ghost small" onClick={() => setEditing(true)}>
-            {c.text ? '💬' : '📞'} {c.name} · add number
+          <button key={c.name} className="call-btn ghost" onClick={() => setEditing(true)}>
+            {c.text ? '💬' : '📞'} {c.name} +
           </button>
         ),
       )}
-      {profile && (
-        <button className="link small" onClick={() => setEditing(true)}>
-          Edit
+      {profile && editable && (
+        <button className="icon-btn small call-edit" aria-label="Edit call buttons" onClick={() => setEditing(true)}>
+          ✎
         </button>
       )}
       {editing && profile && (
@@ -125,6 +131,9 @@ export function CodesBanner() {
         ) : (
           <span className="muted small">Add the barn gate codes</span>
         )}
+        <span className="codes-edit" aria-hidden>
+          ✎
+        </span>
       </button>
       {editing && (
         <CodesSheet codes={codes} onSave={(list) => updateItem(profile.id, { ...profile.data, codes: list })} onClose={() => setEditing(false)} />
@@ -147,6 +156,7 @@ function CodesSheet({ codes, onSave, onClose }: { codes: Code[]; onSave: (c: Cod
   }
   return (
     <Sheet open title="Barn codes" onClose={onClose}>
+      <p className="muted small">The barn changes these every few months. Update them here, or forward the email to Claude.</p>
       <ul className="contact-rows codes-rows">
         {rows.map((r, i) => (
           <li key={i}>

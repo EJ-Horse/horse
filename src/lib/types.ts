@@ -170,5 +170,6 @@ export type HorseEvent = {
   location?: string
   notes?: string
   link?: string
-  kind?: 'show' | 'clinic' | 'vet' | 'other'
+  /** 'closed' = the barn is closed (shown as a note within 30 days). */
+  kind?: 'show' | 'clinic' | 'vet' | 'other' | 'closed'
 }

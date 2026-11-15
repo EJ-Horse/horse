@@ -9,8 +9,9 @@ import { careNextDue, lastVisit } from './Health'
 import { CodesBanner, ContactButtons } from '../components/Contacts'
 import { NextEvent } from '../components/NextEvent'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
-import type { Attention } from '../lib/types'
+import type { Attention, HorseEvent } from '../lib/types'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
+import { closedOn } from '../lib/events'
 import { isDoneThisWeek } from './Weekly'
 import { money } from './Costs'
 
@@ -157,7 +158,8 @@ export function RiderHub() {
   const excellent = skills.filter((s) => s.data.rating === 'excellent').length
   const rides = useItems<CoachEntry>('coach')
   const schedule = useSingle<RideSchedule>('rideSchedule')?.data.slots ?? DEFAULT_SCHEDULE
-  const ridesDue = weekSlots(schedule, rides.map((r) => r.data), today()).filter((s) => s.state === 'due').length
+  const events = useItems<HorseEvent>('event')
+  const ridesDue = weekSlots(schedule, rides.map((r) => r.data), today(), (d) => closedOn(events, d)).filter((s) => s.state === 'due').length
   return (
     <Screen title="Sofía" back={false}>
       <figure className="rider-hero">

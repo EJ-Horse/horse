@@ -31,3 +31,11 @@ describe('shopping links', () => {
     expect(nameFromUrl('https://a.co/d/abc123')).toBe('')
   })
 })
+
+import { shortVetName } from '../components/Contacts'
+describe('vet button label', () => {
+  it('keeps only the last name', () => {
+    expect(shortVetName('Dr. Douglas Novick')).toBe('Dr. Novick')
+    expect(shortVetName('Douglas Novick')).toBe('Dr. Novick')
+  })
+})

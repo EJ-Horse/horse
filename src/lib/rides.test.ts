@@ -27,3 +27,10 @@ describe('ride schedule', () => {
     expect(w[1].state).toBe('due')
   })
 })
+
+describe('closed days', () => {
+  it('marks a planned ride on a closed day as closed, not due', () => {
+    const w = weekSlots(DEFAULT_SCHEDULE, [], '2026-11-28', (d) => d === '2026-11-26')
+    expect(w[0].state).toBe('closed')
+  })
+})

@@ -20,17 +20,17 @@ export function timeLabel(t: string) {
   return m ? `${h12}:${String(m).padStart(2, '0')} ${ampm}` : `${h12} ${ampm}`
 }
 
-export type WeekSlot = RideSlot & { date: string; state: 'logged' | 'due' | 'upcoming'; entryIndex?: number }
+export type WeekSlot = RideSlot & { date: string; state: 'logged' | 'due' | 'upcoming' | 'closed'; entryIndex?: number }
 
 /** This week's planned rides (Mon–Sun), each marked logged / due (today or past) / upcoming. */
-export function weekSlots(slots: RideSlot[], entries: CoachEntry[], today: string): WeekSlot[] {
+export function weekSlots(slots: RideSlot[], entries: CoachEntry[], today: string, isClosed: (date: string) => boolean = () => false): WeekSlot[] {
   const monday = weekStart(today)
   return [...slots]
     .sort((a, b) => a.day - b.day || a.time.localeCompare(b.time))
     .map((s) => {
       const date = addDays(monday, s.day)
       const entryIndex = entries.findIndex((e) => e.date === date && rideType(e) === s.type)
-      const state = entryIndex >= 0 ? 'logged' : date <= today ? 'due' : 'upcoming'
+      const state = entryIndex >= 0 ? 'logged' : isClosed(date) ? 'closed' : date <= today ? 'due' : 'upcoming'
       return { ...s, date, state, entryIndex: entryIndex >= 0 ? entryIndex : undefined }
     })
 }

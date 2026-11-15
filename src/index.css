@@ -1340,3 +1340,68 @@ img.hero-img {
   border-top: 1px solid var(--line);
   margin-top: 4px;
 }
+
+/* one line of call buttons */
+.call-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -2px;
+  padding: 0 2px;
+}
+.call-row::-webkit-scrollbar {
+  display: none;
+}
+.call-btn {
+  flex: none;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 6px;
+  letter-spacing: -0.01em;
+}
+.call-btn.ghost {
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+}
+.call-edit {
+  flex: none;
+  width: 22px;
+  height: 28px;
+  font-size: 15px;
+}
+.codes-edit {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.closure-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.closure-notes.with-event {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+.closure-notes li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
