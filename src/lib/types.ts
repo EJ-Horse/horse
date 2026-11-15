@@ -43,6 +43,8 @@ export const BODY_PARTS = [
   'Back legs',
   'Hooves',
   'Back',
+  'Belly – front',
+  'Belly – back',
   'Tail',
   'Other',
 ] as const

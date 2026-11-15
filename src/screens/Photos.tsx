@@ -52,55 +52,127 @@ export function Photos() {
   )
 }
 
-/** History of one body part (or one tracked issue), with side-by-side compare. */
+/** Groups photos by the day they were taken, newest day first. */
+export function groupByDay<I extends { data: { date: string } }>(items: I[]): [string, I[]][] {
+  const map = new Map<string, I[]>()
+  for (const it of items) {
+    const list = map.get(it.data.date) ?? []
+    list.push(it)
+    map.set(it.data.date, list)
+  }
+  return [...map.entries()].sort((x, y) => y[0].localeCompare(x[0]))
+}
+
+/** History of one body part (or one tracked issue), grouped by day, with compare. */
 export function PhotoTimeline({ part, issue }: { part?: BodyPart; issue?: string }) {
   const all = useItems<HorsePhoto>('photo')
   const list = all.filter((p) => (issue ? p.data.issue === issue : p.data.part === part)).sort(byNewest)
+  const days = groupByDay(list)
   const [adding, setAdding] = useState(false)
   const [edit, setEdit] = useState<Item<HorsePhoto> | null>(null)
-  const [big, setBig] = useState<string | null>(null)
+  const [view, setView] = useState<Item<HorsePhoto> | null>(null)
   const [pick, setPick] = useState<string[]>([]) // up to two ids to compare
-  const comparing = pick.length === 2 ? pick.map((id) => list.find((p) => p.id === id)!).filter(Boolean) : null
-  // Default compare: the two newest.
-  const pair = comparing ?? (list.length >= 2 ? [list[0], list[1]] : null)
+  const comparing = pick.length === 2 ? pick.map((id) => list.find((p) => p.id === id)).filter((x): x is Item<HorsePhoto> => !!x) : null
+  // Default compare: newest photo vs the newest photo from an earlier day.
+  const earlier = days.length >= 2 ? days[1][1][0] : undefined
+  const pair = comparing?.length === 2 ? comparing : list[0] && earlier ? [list[0], earlier] : null
 
   function toggle(id: string) {
     setPick((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p.slice(-1), id]))
   }
 
   return (
-    <Screen title={issue ? `🔎 ${issue}` : part!} action={<AddButton onClick={() => setAdding(true)} label="Photo" />}>
-      {list.length === 0 && <p className="empty">No photos yet. Add the first one so you have something to compare with later.</p>}
-      {pair && pair.length === 2 && <Compare older={pair[0].data.date <= pair[1].data.date ? pair[0] : pair[1]} newer={pair[0].data.date <= pair[1].data.date ? pair[1] : pair[0]} />}
-      {list.length >= 2 && <p className="muted small">Tap ⇄ on any two photos to compare those instead.</p>}
-      <ul className="timeline">
-        {list.map((p) => (
-          <li key={p.id} className={'card timeline-item' + (pick.includes(p.id) ? ' picked' : '')}>
-            <MediaImg path={p.data.path} className="timeline-img" onClick={() => setBig(p.data.path)} />
-            <div className="timeline-meta">
-              <strong>{formatDate(p.data.date)}</strong>
-              {issue && <span className="muted small">{p.data.part}</span>}
-              {p.data.issue && !issue && <span className="tag">🔎 {p.data.issue}</span>}
-              {p.data.note && <p className="small">{p.data.note}</p>}
-              <AddedBy item={p} />
-              <div className="quick-row">
-                {list.length >= 2 && (
-                  <button className={'chip' + (pick.includes(p.id) ? ' on' : '')} onClick={() => toggle(p.id)}>
-                    ⇄ Compare
-                  </button>
-                )}
-                <button className="chip" onClick={() => setEdit(p)}>
-                  Edit
-                </button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <Screen title={issue ? `🔎 ${issue}` : part!} action={<AddButton onClick={() => setAdding(true)} label="Photos" />}>
+      {list.length === 0 && <p className="empty">No photos yet. Add the first ones so you have something to compare with later.</p>}
+      {pair && (
+        <Compare
+          older={pair[0].data.date <= pair[1].data.date ? pair[0] : pair[1]}
+          newer={pair[0].data.date <= pair[1].data.date ? pair[1] : pair[0]}
+        />
+      )}
+      {list.length >= 2 && (
+        <p className="muted small">
+          {pick.length === 1 ? 'Now tap another photo and choose ⇄ Compare.' : 'Tap any photo, then ⇄ Compare, to pick which two to compare.'}
+        </p>
+      )}
+      {days.map(([date, photos]) => (
+        <section key={date} className="day">
+          <h3 className="day-title">
+            {formatDate(date)} <span className="muted">· {photos.length === 1 ? '1 photo' : `${photos.length} photos`}</span>
+          </h3>
+          <div className="day-grid">
+            {photos.map((p) => (
+              <button key={p.id} className={'day-cell' + (pick.includes(p.id) ? ' picked' : '')} onClick={() => setView(p)} aria-label={`Photo from ${formatDate(date)}`}>
+                <MediaImg path={p.data.path} className="day-img" />
+                {p.data.issue && !issue && <span className="day-badge">🔎</span>}
+                {pick.includes(p.id) && <span className="day-badge pick">⇄</span>}
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
+      {view && (
+        <PhotoView
+          item={view}
+          showPart={!!issue}
+          picked={pick.includes(view.id)}
+          canCompare={list.length >= 2}
+          onCompare={() => {
+            toggle(view.id)
+            setView(null)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+          onEdit={() => {
+            setEdit(view)
+            setView(null)
+          }}
+          onClose={() => setView(null)}
+        />
+      )}
       {adding && <PhotoSheet part={part ?? list[0]?.data.part} issue={issue} onClose={() => setAdding(false)} />}
       {edit && <PhotoSheet item={edit} onClose={() => setEdit(null)} />}
-      <Lightbox path={big} onClose={() => setBig(null)} />
     </Screen>
+  )
+}
+
+function PhotoView({
+  item,
+  showPart,
+  picked,
+  canCompare,
+  onCompare,
+  onEdit,
+  onClose,
+}: {
+  item: Item<HorsePhoto>
+  showPart: boolean
+  picked: boolean
+  canCompare: boolean
+  onCompare: () => void
+  onEdit: () => void
+  onClose: () => void
+}) {
+  const [big, setBig] = useState(false)
+  const p = item.data
+  return (
+    <Sheet open title={formatDate(p.date)} onClose={onClose}>
+      <MediaImg path={p.path} className="preview-img tap" onClick={() => setBig(true)} />
+      {showPart && <p className="muted small">{p.part}</p>}
+      {p.issue && <span className="tag">🔎 {p.issue}</span>}
+      {p.note && <p className="small" style={{ marginTop: 6 }}>{p.note}</p>}
+      <AddedBy item={item} />
+      <div className="quick-row" style={{ marginTop: 12 }}>
+        {canCompare && (
+          <button className={'btn small' + (picked ? '' : ' secondary')} onClick={onCompare}>
+            ⇄ {picked ? 'Remove from compare' : 'Compare'}
+          </button>
+        )}
+        <button className="btn ghost small" onClick={onEdit}>
+          Edit
+        </button>
+      </div>
+      <Lightbox path={big ? p.path : null} onClose={() => setBig(false)} />
+    </Sheet>
   )
 }
 
