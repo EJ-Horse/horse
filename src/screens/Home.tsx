@@ -6,6 +6,8 @@ import { useItems, useSingle, updateItem, type Item } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import type { CoachEntry, RideSchedule, CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
 import { careNextDue, lastVisit } from './Health'
+import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
+import type { Attention } from '../lib/types'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
 import { isDoneThisWeek } from './Weekly'
 import { money } from './Costs'
@@ -38,6 +40,9 @@ export function Home() {
   const profile = useSingle<Profile>('profile')
   const p = profile?.data ?? { name: 'EJ' }
   const alerts = useAlerts()
+  const manual = useOpenAttention()
+  const [adding, setAdding] = useState(false)
+  const [openItem, setOpenItem] = useState<Item<Attention> | null>(null)
   const todos = useItems<Todo>('todo').filter((t) => !t.data.oneOff || !t.data.doneWeek || isDoneThisWeek(t.data))
   const done = todos.filter((t) => isDoneThisWeek(t.data)).length
   const [editing, setEditing] = useState(false)
@@ -56,21 +61,42 @@ export function Home() {
         </span>
       </button>
 
-      {alerts.length > 0 ? (
+      {alerts.length > 0 || manual.length > 0 ? (
         <div className="card">
-          <strong>Needs attention</strong>
-          <ul className="alerts">
-            {alerts.map((a) => (
-              <li key={a.key} className="tap" onClick={() => go(a.to)}>
-                <span>{a.text}</span>
-                <span className={'due ' + a.state}>{a.sub}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="row-between">
+            <strong>Needs attention</strong>
+            <button className="pill-btn" onClick={() => setAdding(true)}>
+              + Add
+            </button>
+          </div>
+          {manual.length > 0 && (
+            <ul className="attn-list">
+              {manual.map((a) => (
+                <AttentionRow key={a.id} item={a} showArea onOpen={() => setOpenItem(a)} />
+              ))}
+            </ul>
+          )}
+          {alerts.length > 0 && (
+            <ul className="alerts">
+              {alerts.map((a) => (
+                <li key={a.key} className="tap" onClick={() => go(a.to)}>
+                  <span>{a.text}</span>
+                  <span className={'due ' + a.state}>{a.sub}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       ) : (
-        <div className="card soft">✅ Nothing overdue. Vaccines and care are up to date.</div>
+        <div className="card soft row-between">
+          <span>✅ Nothing needs attention.</span>
+          <button className="pill-btn" onClick={() => setAdding(true)}>
+            + Add
+          </button>
+        </div>
       )}
+      {adding && <AttentionSheet item={null} area="horse" onClose={() => setAdding(false)} />}
+      {openItem && <AttentionSheet item={openItem} area={openItem.data.area} onClose={() => setOpenItem(null)} />}
 
       <button className="card tap week-card" onClick={() => go('rider/weekly')}>
         <span>
@@ -116,6 +142,7 @@ export function HorseHub() {
   const month = costs.filter((c) => !c.data.pending && monthKey(c.data.date) === monthKey(today())).reduce((s, c) => s + c.data.amount, 0)
   return (
     <Screen title="Horse" back={false}>
+      <AttentionBar area="horse" />
       <VetCard />
       <div className="tiles">
         <Tile to="horse/health" icon="🩺" title="Health" sub="Vaccines, care, symptoms" badge={alerts || undefined} />
@@ -143,6 +170,7 @@ export function RiderHub() {
       <figure className="rider-hero">
         <img src={`${import.meta.env.BASE_URL}sofia-ej.jpg`} alt="Sofía with EJ" />
       </figure>
+      <AttentionBar area="rider" />
       <div className="tiles">
         <Tile to="rider/skills" icon="🏆" title="Skills" sub={`${excellent}/${skills.length} excellent`} />
         <Tile to="rider/tips" icon="💡" title="Tips" sub="Cues & videos" />

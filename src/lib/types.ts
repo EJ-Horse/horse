@@ -149,3 +149,6 @@ export type Fear = {
   notes?: string
   history?: { date: string; note: string }[]
 }
+
+/** Something one of you flagged by hand; shows on Home until marked done. */
+export type Attention = { text: string; area: 'horse' | 'rider'; due?: string; done?: boolean; doneOn?: string; doneBy?: string }
