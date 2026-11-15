@@ -142,6 +142,77 @@ export const SUGGESTIONS: Suggestion[] = [
   { key: 'bling-browband', name: 'Bling browband', category: 'Fun', why: 'A sparkly browband for special days.', match: ['browband'], after: ['bridle'] },
   { key: 'costume', name: 'Horse costume', category: 'Fun', why: 'For the Halloween show.', match: ['costume'], months: [9, 10] },
   { key: 'holiday-bands', name: 'Holiday-colour braiding bands', category: 'Fun', why: 'For the Christmas and Valentine looks in Beautify.', match: ['holiday band', 'colored bands', 'coloured bands'], after: ['braiding-bands'] },
+
+  // ==== Added: more for existing categories ====
+  // Grooming
+  { key: 'mane-pulling-comb', name: 'Mane pulling comb', category: 'Grooming', why: 'Thins and shortens the mane for hunter braids.', match: ['pulling comb', 'thinning comb'], after: ['mane-comb'] },
+  { key: 'tail-bag', name: 'Tail bag', category: 'Grooming', why: 'Keeps EJ’s long white tail clean between shows.', match: ['tail bag', 'tail wrap'], after: ['whitening-shampoo'] },
+  { key: 'grooming-mitt', name: 'Grooming mitt', category: 'Grooming', why: 'Easy for Sofía; great for a quick polish.', match: ['grooming mitt', 'grooming glove'] },
+  { key: 'hoof-pick-brush', name: 'Hoof pick with brush', category: 'Grooming', why: 'Spare for the car or trailer.', match: ['hoof pick brush', 'hoof pick with brush'], after: ['hoof-pick'] },
+  // Health
+  { key: 'ice-boots', name: 'Ice boots / cold wraps', category: 'Health & first aid', why: 'Cool his legs after a hard ride or a knock.', match: ['ice boot', 'cold wrap', 'ice wrap'], after: ['first-aid'] },
+  { key: 'standing-wraps', name: 'Standing wraps & pillow pads', category: 'Health & first aid', why: 'Support and protect legs; the vet may ask for them.', match: ['standing wrap', 'pillow wrap', 'no bow'], after: ['vet-wrap'] },
+  { key: 'syringe', name: 'Oral dosing syringes', category: 'Health & first aid', why: 'For giving medicine by mouth if the vet prescribes it.', match: ['dosing syringe', 'oral syringe'], after: ['thermometer'] },
+  { key: 'sunscreen', name: 'Horse-safe sunscreen', category: 'Health & first aid', why: 'Gray horses can have pink skin on the muzzle that burns.', match: ['sunscreen', 'sun block', 'zinc'], months: SUMMER },
+  // Tack
+  { key: 'spare-reins', name: 'Spare reins', category: 'Tack', why: 'Reins wear out; a spare pair saves a lesson.', match: ['reins'], after: ['bridle'] },
+  { key: 'grazing-muzzle', name: 'Grazing muzzle (if needed)', category: 'Tack', why: 'Only if the vet says he needs to slow down on grass.', match: ['grazing muzzle'], after: ['breakaway-halter'] },
+  { key: 'quarter-sheet', name: 'Quarter sheet', category: 'Tack', why: 'Keeps his back warm while warming up in winter.', match: ['quarter sheet', 'exercise sheet'], months: WINTER, after: ['cooler'] },
+  // Feed & treats
+  { key: 'lick-treat', name: 'Treat lick / boredom buster', category: 'Feed & treats', why: 'A long-lasting treat for stall time.', match: ['likit', 'lick treat'], after: ['salt-lick'] },
+  { key: 'homemade-treats', name: 'Horse treat mold / mix', category: 'Feed & treats', why: 'Fun to make treats with Sofía (follow Nutrition limits).', match: ['treat mold', 'treat mix'], after: ['treats'] },
+  { key: 'feed-tubs', name: 'Feed storage bin', category: 'Feed & treats', why: 'Keeps treats and feed dry and mouse-free.', match: ['storage bin', 'feed bin', 'feed storage'], after: ['feed-scoop'] },
+  // Barn & stable
+  { key: 'muck-fork', name: 'Muck fork (if you clean his stall)', category: 'Barn & stable', why: 'Ask the barn if owners muck out.', match: ['muck fork', 'manure fork', 'pitchfork'] },
+  { key: 'blanket-rack', name: 'Blanket rack / bar', category: 'Barn & stable', why: 'Dries and stores rugs off the floor.', match: ['blanket rack', 'blanket bar'], after: ['winter-rug'] },
+  { key: 'hose-nozzle', name: 'Hose spray nozzle', category: 'Barn & stable', why: 'Gentle spray for baths and cooling his legs.', match: ['spray nozzle', 'hose nozzle'] },
+  { key: 'step-stool', name: 'Mounting block / step stool', category: 'Barn & stable', why: 'Helps Sofía reach for braiding and mounting.', match: ['mounting block', 'step stool'] },
+  // Rider gear
+  { key: 'riding-socks', name: 'Tall riding socks', category: 'Rider gear', why: 'Stop boots from rubbing.', match: ['riding sock', 'boot sock'], after: ['riding-boots'] },
+  { key: 'belt', name: 'Riding belt', category: 'Rider gear', why: 'Needed for shows and keeps the shirt tucked.', match: ['belt'], after: ['breeches'] },
+  { key: 'sun-visor', name: 'Helmet sun visor / cover', category: 'Rider gear', why: 'Shade on sunny days at the barn.', match: ['helmet visor', 'helmet cover'], months: SUMMER, after: ['helmet'] },
+  { key: 'boot-bag', name: 'Boot bag', category: 'Rider gear', why: 'Keeps muddy boots out of the car.', match: ['boot bag'], after: ['riding-boots'] },
+  // Shows
+  { key: 'stock-tie', name: 'Show bow / stock tie', category: 'Shows & competition', why: 'Some classes need a stock tie or collar bow.', match: ['stock tie', 'show bow', 'collar'], after: ['show-shirt'] },
+  { key: 'show-gloves', name: 'Black show gloves', category: 'Shows & competition', why: 'Classic look for the ring.', match: ['show glove', 'black glove'], after: ['gloves'] },
+  { key: 'hoof-black', name: 'Hoof polish (clear or black)', category: 'Shows & competition', why: 'Finishing touch on show day.', match: ['hoof black', 'hoof polish'] },
+  { key: 'show-checklist', name: 'Show-day bucket kit', category: 'Shows & competition', why: 'A bucket with rags, spray, comb and bands, ready to go.', match: ['show kit', 'ringside kit'], after: ['grooming-tote'] },
+  // Travel
+  { key: 'tail-guard', name: 'Tail guard', category: 'Travel & trailer', why: 'Protects his tail from rubbing in the trailer.', match: ['tail guard'], after: ['shipping-boots'] },
+  { key: 'poll-guard', name: 'Head bumper / poll guard', category: 'Travel & trailer', why: 'Protects his head in the trailer.', match: ['head bumper', 'poll guard'], after: ['fleece-halter'] },
+  { key: 'travel-bucket', name: 'Collapsible water bucket', category: 'Travel & trailer', why: 'Folds flat in the car; water anywhere.', match: ['collapsible bucket', 'folding bucket'], after: ['water-jug'] },
+
+  // ==== New category: Training & groundwork ====
+  { key: 'lunge-line', name: 'Lunge line', category: 'Training & groundwork', why: 'Warm-ups and lunge lessons on the circle.', match: ['lunge line', 'longe line'], essential: true },
+  { key: 'lunge-whip', name: 'Lunge whip', category: 'Training & groundwork', why: 'Used as a guide, not to hit (ask Rachel how).', match: ['lunge whip', 'longe whip'], after: ['lunge-line'] },
+  { key: 'rope-halter', name: 'Rope halter & 12 ft lead', category: 'Training & groundwork', why: 'For groundwork and leading practice.', match: ['rope halter'] },
+  { key: 'cones', name: 'Training cones', category: 'Training & groundwork', why: 'Mark circles and patterns for practice.', match: ['cone'] },
+  { key: 'poles', name: 'Ground poles or cavaletti blocks', category: 'Training & groundwork', why: 'Practise the pole skills in Skills at home or the barn.', match: ['ground pole', 'cavaletti', 'jump block'], after: ['cones'] },
+  { key: 'desensitize', name: 'Tarp & flag for desensitizing', category: 'Training & groundwork', why: 'Calmly help him with scary things (see What scares EJ).', match: ['tarp', 'training flag', 'flag'], after: ['rope-halter'] },
+  { key: 'clicker', name: 'Clicker (for clicker training)', category: 'Training & groundwork', why: 'A fun way for Sofía to teach tricks with treats.', match: ['clicker'], after: ['treat-pouch'] },
+  { key: 'dressage-letters', name: 'Arena dressage letters', category: 'Training & groundwork', why: 'Practise test figures at the right markers.', match: ['dressage letter', 'arena letter', 'arena marker'], after: ['cones'] },
+
+  // ==== New category: Cleaning & laundry ====
+  { key: 'blanket-wash', name: 'Blanket & pad wash', category: 'Cleaning & laundry', why: 'Gentle wash that keeps waterproofing and fabric safe.', match: ['blanket wash', 'rug wash', 'pad wash'], essential: true },
+  { key: 'laundry-bag', name: 'Laundry bag for saddle pads', category: 'Cleaning & laundry', why: 'Keeps horse hair out of the home washing machine.', match: ['laundry bag', 'wash bag'], after: ['saddle-pad'] },
+  { key: 'leather-wipes', name: 'Leather cleaning wipes', category: 'Cleaning & laundry', why: 'Quick clean after a ride when there’s no time.', match: ['leather wipe', 'tack wipe'], after: ['tack-cleaner'] },
+  { key: 'waterproofer', name: 'Blanket re-waterproofing spray', category: 'Cleaning & laundry', why: 'Keeps the winter rug waterproof each season.', match: ['waterproof', 'reproofer'], months: WINTER, after: ['winter-rug'] },
+  { key: 'bit-wipes', name: 'Bit wipes / bit cleaner', category: 'Cleaning & laundry', why: 'A clean bit is nicer for his mouth.', match: ['bit wipe', 'bit cleaner'], after: ['bridle'] },
+  { key: 'hair-remover', name: 'Pet hair remover brush', category: 'Cleaning & laundry', why: 'Gets gray hair off pads, jackets and car seats.', match: ['hair remover', 'lint roller', 'hair remover brush'] },
+
+  // ==== New category: Books & learning ====
+  { key: 'pony-club-manual', name: 'Pony Club manual (D level)', category: 'Books & learning', why: 'The classic guide to horse care and riding basics.', match: ['pony club', 'manual of horsemanship'], essential: true },
+  { key: 'horse-care-book', name: 'Horse care book for kids', category: 'Books & learning', why: 'Grooming, feeding and health in simple words.', match: ['horse care book', 'horse book'] },
+  { key: 'dressage-tests', name: 'Dressage test booklet (Intro/Training)', category: 'Books & learning', why: 'Learn the tests ridden at local shows.', match: ['dressage test', 'test booklet'], after: ['pony-club-manual'] },
+  { key: 'riding-journal', name: 'Riding journal', category: 'Books & learning', why: 'A paper diary for goals and lessons (to go with Rides).', match: ['journal', 'diary', 'log book'] },
+  { key: 'anatomy-poster', name: 'Horse anatomy poster', category: 'Books & learning', why: 'Learn the parts and markings, like in Photos.', match: ['anatomy', 'poster'], after: ['horse-care-book'] },
+
+  // ==== New category: Memories & display ====
+  { key: 'ribbon-display', name: 'Ribbon display / board', category: 'Memories & display', why: 'Show off Sofía’s show ribbons at home.', match: ['ribbon display', 'ribbon board', 'ribbon holder'], after: ['show-shirt'] },
+  { key: 'photo-book', name: 'Photo book of EJ', category: 'Memories & display', why: 'Print favourites from the Photos section each year.', match: ['photo book', 'photobook'] },
+  { key: 'hoof-keepsake', name: 'Horseshoe or hoof-print keepsake', category: 'Memories & display', why: 'A fun first-year keepsake (ask the farrier for an old shoe).', match: ['horseshoe', 'hoof print', 'keepsake'] },
+  { key: 'frame', name: 'Picture frame for Sofía & EJ', category: 'Memories & display', why: 'For a favourite photo from the barn.', match: ['frame'] },
+  { key: 'tail-keepsake', name: 'Tail-hair bracelet kit', category: 'Memories & display', why: 'Braid a bracelet from a few of EJ’s tail hairs.', match: ['bracelet', 'tail hair'], after: ['photo-book'] },
 ]
 
 /** The words we compare against: the product name from the link, the note and the link itself. */
