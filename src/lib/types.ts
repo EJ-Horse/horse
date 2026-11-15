@@ -72,7 +72,19 @@ export type Hairstyle = {
   favorite?: boolean
 }
 
-export type ShopItem = { url: string; note?: string; bought?: boolean; boughtOn?: string }
+export const SHOP_CATEGORIES = ['Tack', 'Grooming', 'Fun', 'Health & first aid', 'Feed & treats', 'Rider gear', 'Barn & stable', 'Other'] as const
+export type ShopCategory = (typeof SHOP_CATEGORIES)[number]
+export const SHOP_ICON: Record<ShopCategory, string> = {
+  Tack: '🏇',
+  Grooming: '🪮',
+  Fun: '🎀',
+  'Health & first aid': '🩹',
+  'Feed & treats': '🥕',
+  'Rider gear': '🪖',
+  'Barn & stable': '🏠',
+  Other: '📦',
+}
+export type ShopItem = { url: string; note?: string; bought?: boolean; boughtOn?: string; category?: ShopCategory }
 
 export const COST_CATEGORIES = ['Stable', 'Vet', 'Farrier', 'Feed', 'Equipment', 'Lessons', 'Shows', 'Transport', 'Grooming', 'Purchase', 'Other'] as const
 /** pending = expected but not paid yet; kept out of the spent totals. */
