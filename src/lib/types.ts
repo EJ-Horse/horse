@@ -80,7 +80,7 @@ export type Hairstyle = {
   photo?: string
 }
 
-export const SHOP_CATEGORIES = ['Tack', 'Grooming', 'Fun', 'Health & first aid', 'Feed & treats', 'Rider gear', 'Barn & stable', 'Other'] as const
+export const SHOP_CATEGORIES = ['Tack', 'Grooming', 'Fun', 'Health & first aid', 'Feed & treats', 'Rider gear', 'Barn & stable', 'Shows & competition', 'Travel & trailer', 'Other'] as const
 export type ShopCategory = (typeof SHOP_CATEGORIES)[number]
 export const SHOP_ICON: Record<ShopCategory, string> = {
   Tack: '🏇',
@@ -90,6 +90,8 @@ export const SHOP_ICON: Record<ShopCategory, string> = {
   'Feed & treats': '🥕',
   'Rider gear': '🪖',
   'Barn & stable': '🏠',
+  'Shows & competition': '🏆',
+  'Travel & trailer': '🚚',
   Other: '📦',
 }
 export type ShopItem = { url: string; note?: string; bought?: boolean; boughtOn?: string; category?: ShopCategory }

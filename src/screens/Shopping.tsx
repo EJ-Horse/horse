@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AddedBy, Chips, ErrorText, Screen, Segmented } from '../components/ui'
 import { formatDate, today } from '../lib/dates'
 import { addItem, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
-import { amazonSearch, inSeason, SUGGESTIONS, suggestionState, type Suggestion } from '../lib/suggestions'
+import { amazonSearch, availableSuggestions, inSeason, SUGGESTIONS, suggestionsByCategory, suggestionState, type Suggestion } from '../lib/suggestions'
 import { host, nameFromUrl } from '../lib/shop'
 import { SHOP_CATEGORIES, SHOP_ICON, type Profile, type ShopCategory, type ShopItem } from '../lib/types'
 
@@ -159,9 +159,10 @@ function ShopRow({ row }: { row: Item<ShopItem> }) {
 }
 
 function openSuggestions(items: ShopItem[], have: string[]) {
-  const month = new Date().getMonth() + 1
-  return SUGGESTIONS.filter((s) => inSeason(s, month) && suggestionState(s, items, have) === 'open')
+  return availableSuggestions(items, have, new Date().getMonth() + 1)
 }
+
+const IDEA_CATEGORIES = SHOP_CATEGORIES.filter((c) => c !== 'Other')
 
 /** Things worth buying that aren't on the list yet. */
 function Suggestions({ items, profile }: { items: ShopItem[]; profile: Item<Profile> | undefined }) {
@@ -171,7 +172,8 @@ function Suggestions({ items, profile }: { items: ShopItem[]; profile: Item<Prof
   const month = new Date().getMonth() + 1
   const relevant = SUGGESTIONS.filter((s) => inSeason(s, month))
   const state = new Map(relevant.map((s) => [s.key, suggestionState(s, items, have)]))
-  const open = relevant.filter((s) => state.get(s.key) === 'open')
+  const groups = suggestionsByCategory(IDEA_CATEGORIES, items, have, month)
+  const anyOpen = groups.some((g) => g.shown.length)
   const covered = relevant.filter((s) => state.get(s.key) !== 'open')
 
   async function add(s: Suggestion) {
@@ -193,17 +195,17 @@ function Suggestions({ items, profile }: { items: ShopItem[]; profile: Item<Prof
       <p className="muted small">
         Things most horse owners need, checked against your list. Tap <strong>+ Add</strong> to put one on the list, or <strong>Have it</strong> if you already own it.
       </p>
-      {open.length === 0 && <p className="empty">🎉 You’ve got everything on our list covered.</p>}
-      {SHOP_CATEGORIES.map((c) => {
-        const group = open.filter((s) => s.category === c)
-        if (!group.length) return null
-        return (
-          <section key={c} className="shop-group">
-            <h4 className="shop-cat">
-              {SHOP_ICON[c]} {c}
-            </h4>
+      {!anyOpen && <p className="empty">🎉 You’ve got everything on our list covered.</p>}
+      {groups.map(({ category: c, shown, waiting }) => (
+        <section key={c} className="shop-group">
+          <h4 className="shop-cat">
+            {SHOP_ICON[c]} {c}
+          </h4>
+          {shown.length === 0 ? (
+            <p className="muted small no-ideas">No suggestions right now</p>
+          ) : (
             <ul className="list">
-              {group.map((s) => (
+              {shown.map((s) => (
                 <li key={s.key} className="card idea">
                   <div className="idea-text">
                     <strong>
@@ -224,9 +226,10 @@ function Suggestions({ items, profile }: { items: ShopItem[]; profile: Item<Prof
                 </li>
               ))}
             </ul>
-          </section>
-        )
-      })}
+          )}
+          {waiting > 0 && <p className="hint">{waiting === 1 ? '1 more idea' : `${waiting} more ideas`} will show as you add or check these off.</p>}
+        </section>
+      ))}
       {covered.length > 0 && (
         <div className="card soft">
           <button className="row-between link-block" onClick={() => setShowCovered(!showCovered)}>

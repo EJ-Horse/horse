@@ -1574,3 +1574,8 @@ img.hero-img {
   gap: 6px;
   flex: none;
 }
+.no-ideas {
+  padding: 8px 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}

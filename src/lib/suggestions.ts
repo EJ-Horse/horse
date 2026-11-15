@@ -11,10 +11,14 @@ export type Suggestion = {
   /** Months (1–12) when it's worth suggesting; all year if missing. */
   months?: number[]
   essential?: boolean
+  /** Only suggested once these are covered (on the list, bought, or 'have it'). */
+  after?: string[]
 }
 
 const WINTER = [10, 11, 12, 1, 2, 3]
 const FLY_SEASON = [3, 4, 5, 6, 7, 8, 9, 10]
+const SPRING = [2, 3, 4, 5]
+const SUMMER = [5, 6, 7, 8, 9]
 
 export const SUGGESTIONS: Suggestion[] = [
   // Grooming
@@ -63,6 +67,81 @@ export const SUGGESTIONS: Suggestion[] = [
   { key: 'glitter', name: 'Hoof polish or glitter gel', category: 'Fun', why: 'For themed looks in Beautify.', match: ['glitter', 'hoof polish'] },
   { key: 'ribbons', name: 'Braiding ribbons', category: 'Fun', why: 'For ribbon braids and bows.', match: ['ribbon'] },
   { key: 'treat-toy', name: 'Stall toy / treat ball', category: 'Fun', why: 'Keeps him busy in the stall.', match: ['toy', 'treat ball', 'jolly ball', 'likit'] },
+
+  // ---- More grooming ----
+  { key: 'face-brush', name: 'Small face brush', category: 'Grooming', why: 'Extra soft for around the eyes and muzzle.', match: ['face brush'], after: ['body-brush'] },
+  { key: 'hoof-oil', name: 'Hoof conditioner / oil', category: 'Grooming', why: 'Keeps his bare hooves from drying and cracking.', match: ['hoof oil', 'hoof conditioner', 'hoof dressing'] },
+  { key: 'shedding-blade', name: 'Shedding blade', category: 'Grooming', why: 'Pulls out his winter coat in spring.', match: ['shedding blade', 'shedding'], months: SPRING },
+  { key: 'towels', name: 'Grooming towels / rags', category: 'Grooming', why: 'Wipe dust, dry legs, polish the coat.', match: ['towel', 'rag'] },
+  { key: 'braid-thread', name: 'Braiding thread & needle', category: 'Grooming', why: 'For hunter and button braids that stay put.', match: ['braiding thread', 'yarn', 'braiding needle'], after: ['braiding-bands'] },
+  { key: 'seam-ripper', name: 'Seam ripper', category: 'Grooming', why: 'Takes braids out quickly without cutting the mane.', match: ['seam ripper'], after: ['braid-thread'] },
+  { key: 'braid-spray', name: 'Braiding spray / gel', category: 'Grooming', why: 'Tames flyaways so braids look neat.', match: ['braiding spray', 'quic braid', 'mane gel'], after: ['braiding-bands'] },
+  { key: 'clipper-oil', name: 'Clipper oil & blade wash', category: 'Grooming', why: 'Keeps the clipper blades cool and sharp.', match: ['clipper oil', 'blade wash', 'kool lube'], after: ['clippers'] },
+  { key: 'stain-remover', name: 'Waterless stain remover', category: 'Grooming', why: 'Quick fix for green/yellow stains on a gray horse.', match: ['stain remover', 'waterless shampoo', 'spot remover'], after: ['whitening-shampoo'] },
+
+  // ---- More health ----
+  { key: 'stethoscope', name: 'Stethoscope', category: 'Health & first aid', why: 'Check heart rate and gut sounds when he seems off.', match: ['stethoscope'], after: ['thermometer'] },
+  { key: 'epsom', name: 'Epsom salt (for soaks)', category: 'Health & first aid', why: 'For hoof soaks if the vet or farrier asks.', match: ['epsom'], after: ['first-aid'] },
+  { key: 'poultice', name: 'Poultice / hoof packing', category: 'Health & first aid', why: 'Draws out heat after hard work or for an abscess.', match: ['poultice', 'hoof packing'], after: ['first-aid'] },
+  { key: 'hoof-boot', name: 'Emergency hoof boot', category: 'Health & first aid', why: 'Protects a sore or injured hoof until the farrier comes.', match: ['hoof boot', 'soaking boot'] },
+  { key: 'electrolytes', name: 'Electrolytes', category: 'Health & first aid', why: 'Helps him drink and recover on hot days (ask the vet).', match: ['electrolyte'], months: SUMMER },
+  { key: 'fly-sheet', name: 'Fly sheet', category: 'Health & first aid', why: 'Light sheet that keeps flies off his body.', match: ['fly sheet'], months: FLY_SEASON, after: ['fly-mask'] },
+  { key: 'fly-boots', name: 'Fly boots', category: 'Health & first aid', why: 'Stops stamping at flies, which is hard on the hooves.', match: ['fly boot'], months: FLY_SEASON, after: ['fly-spray'] },
+
+  // ---- More tack ----
+  { key: 'breakaway-halter', name: 'Breakaway halter (for turnout)', category: 'Tack', why: 'Breaks if it catches on something, so he can’t get hurt.', match: ['breakaway'], after: ['halter'] },
+  { key: 'half-pad', name: 'Half pad (gel or fleece)', category: 'Tack', why: 'Extra comfort and better saddle fit.', match: ['half pad', 'gel pad', 'shim'], after: ['saddle-pad'] },
+  { key: 'bell-boots', name: 'Bell boots', category: 'Tack', why: 'Protect his front heels when jumping or turning out.', match: ['bell boot', 'overreach'], after: ['boots'] },
+  { key: 'safety-stirrups', name: 'Safety stirrups', category: 'Tack', why: 'Release the foot in a fall; great for young riders.', match: ['safety stirrup', 'peacock', 'breakaway stirrup'] },
+  { key: 'stirrup-leathers', name: 'Stirrup leathers', category: 'Tack', why: 'Check the length with Rachel; a spare pair is handy.', match: ['stirrup leather'], after: ['girth'] },
+  { key: 'breastplate', name: 'Breastplate / martingale', category: 'Tack', why: 'Keeps the saddle in place when jumping (ask Rachel).', match: ['breastplate', 'martingale', 'breastcollar'], after: ['bridle'] },
+  { key: 'saddle-cover', name: 'Saddle cover', category: 'Tack', why: 'Keeps dust off between rides.', match: ['saddle cover'], after: ['tack-cleaner'] },
+  { key: 'neck-rug', name: 'Neck cover for the rug', category: 'Tack', why: 'Extra warmth on very cold, wet days.', match: ['neck cover', 'neck rug', 'hood'], months: WINTER, after: ['winter-rug'] },
+  { key: 'rain-sheet', name: 'Rain sheet', category: 'Tack', why: 'Waterproof without the heat of a full blanket.', match: ['rain sheet', 'turnout sheet'], months: WINTER, after: ['winter-rug'] },
+
+  // ---- More feed ----
+  { key: 'treat-pouch', name: 'Treat pouch', category: 'Feed & treats', why: 'Clips to Sofía’s belt for rewards during training.', match: ['treat pouch', 'treat bag'], after: ['treats'] },
+  { key: 'feed-scoop', name: 'Feed scoop', category: 'Feed & treats', why: 'Measures feed the same every time.', match: ['scoop'], after: ['feed-bucket'] },
+  { key: 'supplement', name: 'Hoof or joint supplement (ask the vet)', category: 'Feed & treats', why: 'Only if Dr. Novick recommends one.', match: ['supplement', 'biotin', 'joint'], after: ['salt-lick'] },
+
+  // ---- More barn ----
+  { key: 'water-bucket', name: 'Water bucket', category: 'Barn & stable', why: 'A spare for hot days or travel.', match: ['water bucket'] },
+  { key: 'bucket-heater', name: 'Bucket heater', category: 'Barn & stable', why: 'Keeps water from freezing so he keeps drinking.', match: ['bucket heater', 'heated bucket'], months: WINTER, after: ['water-bucket'] },
+  { key: 'tack-trunk', name: 'Tack trunk / storage box', category: 'Barn & stable', why: 'Keeps everything together at the barn.', match: ['tack trunk', 'trunk', 'storage box'] },
+  { key: 'saddle-rack', name: 'Saddle rack', category: 'Barn & stable', why: 'Keeps the saddle in shape.', match: ['saddle rack', 'saddle stand'], after: ['tack-trunk'] },
+  { key: 'bridle-hook', name: 'Bridle hook', category: 'Barn & stable', why: 'Hangs the bridle so the leather doesn’t crack.', match: ['bridle hook', 'bridle rack'], after: ['bridle'] },
+  { key: 'stall-plate', name: 'Stall name plate', category: 'Barn & stable', why: 'EJ’s name on his stall.', match: ['name plate', 'nameplate', 'stall sign'] },
+
+  // ---- More rider gear ----
+  { key: 'helmet-bag', name: 'Helmet bag', category: 'Rider gear', why: 'Protects the helmet in the car and at the barn.', match: ['helmet bag'], after: ['helmet'] },
+  { key: 'breeches', name: 'Riding tights / breeches', category: 'Rider gear', why: 'No seams to rub; better grip in the saddle.', match: ['breeches', 'riding tights', 'jodhpurs'] },
+  { key: 'crop', name: 'Riding crop', category: 'Rider gear', why: 'Only if Rachel says Sofía is ready for one.', match: ['crop', 'whip'], after: ['gloves'] },
+  { key: 'winter-gloves', name: 'Winter riding gloves', category: 'Rider gear', why: 'Warm hands that can still feel the reins.', match: ['winter glove', 'insulated glove'], months: WINTER, after: ['gloves'] },
+  { key: 'barn-jacket', name: 'Barn jacket', category: 'Rider gear', why: 'Warm and okay to get dirty.', match: ['barn jacket', 'barn coat'], months: WINTER },
+
+  // ---- Shows & competition (new) ----
+  { key: 'show-shirt', name: 'Show shirt', category: 'Shows & competition', why: 'Collared shirt for shows.', match: ['show shirt'], essential: true },
+  { key: 'show-jacket', name: 'Show jacket', category: 'Shows & competition', why: 'Needed for most rated classes.', match: ['show jacket', 'show coat', 'hunt coat'], after: ['show-shirt'] },
+  { key: 'hair-net', name: 'Hair nets', category: 'Shows & competition', why: 'Keeps Sofía’s hair neat under the helmet.', match: ['hair net', 'hairnet'] },
+  { key: 'show-pad', name: 'White show saddle pad', category: 'Shows & competition', why: 'Classic look for the show ring.', match: ['show pad', 'white pad', 'fitted pad'], after: ['saddle-pad'] },
+  { key: 'number-holder', name: 'Number string / holder', category: 'Shows & competition', why: 'Holds the competitor number on her back.', match: ['number holder', 'number string', 'pinny'] },
+  { key: 'garment-bag', name: 'Garment bag', category: 'Shows & competition', why: 'Keeps show clothes clean until the class.', match: ['garment bag'], after: ['show-jacket'] },
+  { key: 'show-sheen', name: 'Coat shine spray', category: 'Shows & competition', why: 'Makes a gray coat gleam on show day.', match: ['show sheen', 'coat shine', 'shine spray'] },
+
+  // ---- Travel & trailer (new) ----
+  { key: 'shipping-boots', name: 'Shipping boots', category: 'Travel & trailer', why: 'Protect his legs in the trailer.', match: ['shipping boot', 'travel boot'], essential: true },
+  { key: 'fleece-halter', name: 'Fleece-lined halter', category: 'Travel & trailer', why: 'Comfortable for long trailer rides.', match: ['fleece halter', 'fleece lined', 'shipping halter'], after: ['halter'] },
+  { key: 'trailer-haybag', name: 'Hay bag for the trailer', category: 'Travel & trailer', why: 'Keeps him calm and eating during the ride.', match: ['trailer hay', 'hay bag'], after: ['shipping-boots'] },
+  { key: 'water-jug', name: 'Water jug (5 gal)', category: 'Travel & trailer', why: 'Some horses won’t drink strange water; bring his own.', match: ['water jug', 'water container', 'jerry can'] },
+  { key: 'trailer-kit', name: 'Trailer first-aid kit', category: 'Travel & trailer', why: 'Small kit that lives in the trailer.', match: ['trailer first aid', 'travel first aid'], after: ['first-aid'] },
+  { key: 'papers-folder', name: 'Folder for papers (Coggins, health cert)', category: 'Travel & trailer', why: 'Shows and travel often ask for them.', match: ['document holder', 'coggins', 'papers'] },
+
+  // ---- More fun ----
+  { key: 'ear-bonnet', name: 'Ear bonnet', category: 'Fun', why: 'Cute, and keeps bugs out of his ears.', match: ['ear bonnet', 'fly veil', 'ear net'] },
+  { key: 'matching-set', name: 'Matching saddle pad & bonnet set', category: 'Fun', why: 'Coordinated colours for photos.', match: ['matching set', 'pad set'], after: ['ear-bonnet'] },
+  { key: 'bling-browband', name: 'Bling browband', category: 'Fun', why: 'A sparkly browband for special days.', match: ['browband'], after: ['bridle'] },
+  { key: 'costume', name: 'Horse costume', category: 'Fun', why: 'For the Halloween show.', match: ['costume'], months: [9, 10] },
+  { key: 'holiday-bands', name: 'Holiday-colour braiding bands', category: 'Fun', why: 'For the Christmas and Valentine looks in Beautify.', match: ['holiday band', 'colored bands', 'coloured bands'], after: ['braiding-bands'] },
 ]
 
 /** The words we compare against: the product name from the link, the note and the link itself. */
@@ -90,4 +169,24 @@ export function inSeason(s: Suggestion, month: number) {
 
 export function amazonSearch(name: string) {
   return 'https://www.amazon.com/s?k=' + encodeURIComponent(name.replace(/\(.*?\)/g, '').trim())
+}
+
+export const PER_CATEGORY = 3
+
+/** Suggestions to show now: in season, not covered, and any "after" items already covered. */
+export function availableSuggestions(items: ShopItem[], have: string[], month: number, catalog = SUGGESTIONS) {
+  const state = new Map(catalog.map((s) => [s.key, suggestionState(s, items, have)]))
+  const covered = (k: string) => (state.get(k) ?? 'open') !== 'open'
+  const open = catalog.filter((s) => inSeason(s, month) && state.get(s.key) === 'open' && (s.after ?? []).every(covered))
+  // essentials first, then the order of the list
+  return open.map((s, i) => ({ s, i })).sort((a, b) => Number(!!b.s.essential) - Number(!!a.s.essential) || a.i - b.i).map((x) => x.s)
+}
+
+/** Up to PER_CATEGORY per category; when one is added or marked 'have it', the next one shows. */
+export function suggestionsByCategory<C extends string>(categories: readonly C[], items: ShopItem[], have: string[], month: number) {
+  const open = availableSuggestions(items, have, month)
+  return categories.map((c) => {
+    const all = open.filter((s) => s.category === c)
+    return { category: c, shown: all.slice(0, PER_CATEGORY), waiting: Math.max(0, all.length - PER_CATEGORY) }
+  })
 }
