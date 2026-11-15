@@ -160,3 +160,15 @@ export type Contact = { name: string; phone?: string; role?: string; text?: bool
 
 /** Barn codes shown in the banner on Home. */
 export type Code = { label: string; code: string }
+
+/** A one-off event (show, clinic, vet day…). Home shows the next upcoming one. */
+export type HorseEvent = {
+  title: string
+  date: string
+  endDate?: string
+  time?: string
+  location?: string
+  notes?: string
+  link?: string
+  kind?: 'show' | 'clinic' | 'vet' | 'other'
+}

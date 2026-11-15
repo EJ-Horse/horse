@@ -2,7 +2,7 @@ import { addDays, weekStart } from './dates'
 import type { CoachEntry, RideSlot } from './types'
 
 export const DEFAULT_SCHEDULE: RideSlot[] = [
-  { day: 3, time: '16:00', type: 'lesson' }, // Thursday 4 pm
+  { day: 3, time: '16:45', type: 'lesson' }, // Thursday 4:45 pm
   { day: 5, time: '10:00', type: 'lesson' }, // Saturday 10 am
   { day: 6, time: '10:00', type: 'solo' }, // Sunday 10 am
 ]

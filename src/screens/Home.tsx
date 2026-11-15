@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase'
 import type { CoachEntry, RideSchedule, CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
 import { careNextDue, lastVisit } from './Health'
 import { CodesBanner, ContactButtons } from '../components/Contacts'
+import { NextEvent } from '../components/NextEvent'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
 import type { Attention } from '../lib/types'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
@@ -63,6 +64,8 @@ export function Home() {
       </button>
 
       <CodesBanner />
+
+      <NextEvent />
 
       {alerts.length > 0 || manual.length > 0 ? (
         <div className="card">
