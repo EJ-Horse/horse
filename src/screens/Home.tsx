@@ -6,6 +6,7 @@ import { useItems, useSingle, updateItem, type Item } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import type { CoachEntry, RideSchedule, CareTask, Cost, Fear, HorsePhoto, Profile, ShopItem, Skill, Symptom, Todo, Vaccine, VetVisit } from '../lib/types'
 import { careNextDue, lastVisit } from './Health'
+import { ContactButtons } from '../components/Contacts'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
 import type { Attention } from '../lib/types'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
@@ -114,20 +115,7 @@ export function Home() {
         <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tips, weekly, fears" />
       </div>
 
-      {p.vetPhone || p.farrierPhone ? (
-        <div className="quick-row">
-          {p.vetPhone && (
-            <a className="btn secondary small" href={`tel:${p.vetPhone}`}>
-              📞 Vet{p.vetName ? ` (${p.vetName})` : ''}
-            </a>
-          )}
-          {p.farrierPhone && (
-            <a className="btn secondary small" href={`tel:${p.farrierPhone}`}>
-              📞 Farrier
-            </a>
-          )}
-        </div>
-      ) : null}
+      <ContactButtons vet />
       {editing && profile && <ProfileSheet item={profile} onClose={() => setEditing(false)} />}
     </Screen>
   )
@@ -170,6 +158,7 @@ export function RiderHub() {
       <figure className="rider-hero">
         <img src={`${import.meta.env.BASE_URL}sofia-ej.jpg`} alt="Sofía with EJ" />
       </figure>
+      <ContactButtons />
       <AttentionBar area="rider" />
       <div className="tiles">
         <Tile to="rider/skills" icon="🏆" title="Skills" sub={`${excellent}/${skills.length} excellent`} />

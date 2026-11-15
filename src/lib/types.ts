@@ -7,6 +7,7 @@ export type Profile = {
   stable?: string
   vetName?: string
   vetClinic?: string
+  contacts?: Contact[]
   vetPhone?: string
   farrierPhone?: string
   photo?: string
@@ -152,3 +153,6 @@ export type Fear = {
 
 /** Something one of you flagged by hand; shows on Home until marked done. */
 export type Attention = { text: string; area: 'horse' | 'rider'; due?: string; done?: boolean; doneOn?: string; doneBy?: string }
+
+/** People with a quick call button (Sofía's coach, etc.). */
+export type Contact = { name: string; phone?: string; role?: string }
