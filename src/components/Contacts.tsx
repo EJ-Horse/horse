@@ -23,13 +23,13 @@ export function smsHref(phone: string) {
 }
 
 /** 📞 buttons for the people you call most. A button without a number asks for one. */
-export function ContactButtons({ vet = false, editable = !vet }: { vet?: boolean; editable?: boolean }) {
+export function ContactButtons({ vet = false, editable = !vet, dock = false }: { vet?: boolean; editable?: boolean; dock?: boolean }) {
   const profile = useSingle<Profile>('profile')
   const p = profile?.data
   const contacts = p?.contacts ?? DEFAULT_CONTACTS
   const [editing, setEditing] = useState(false)
   return (
-    <div className="call-row">
+    <div className={dock ? 'call-row call-dock' : 'call-row'}>
       {vet && p?.vetPhone && (
         <a className="call-btn" href={telHref(p.vetPhone)}>
           📞 Vet{p.vetName ? ` (${shortVetName(p.vetName)})` : ''}

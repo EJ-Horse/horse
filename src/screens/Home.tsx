@@ -122,7 +122,7 @@ export function Home() {
         <Tile to="rider" icon="🏇" title="Rider" sub="Rides, skills, tips, tasks, fears" />
       </div>
 
-      <ContactButtons vet />
+      <ContactButtons vet dock />
       {editing && profile && <ProfileSheet item={profile} onClose={() => setEditing(false)} />}
     </Screen>
   )

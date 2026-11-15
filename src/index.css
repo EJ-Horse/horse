@@ -1422,3 +1422,29 @@ img.hero-img {
 .repeat-picker .chip {
   text-transform: none;
 }
+
+/* Home: call buttons docked above the tab bar, filling the width */
+.call-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar) + env(safe-area-inset-bottom));
+  z-index: 9;
+  margin: 0 auto;
+  max-width: 640px;
+  padding: 8px 16px;
+  gap: 6px;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+}
+.call-dock .call-btn {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 10px 6px;
+}
+/* Keep the last card clear of the docked bar */
+.content:has(.call-dock) {
+  padding-bottom: 72px;
+}
