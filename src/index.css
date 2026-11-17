@@ -1865,3 +1865,12 @@ img.hero-img {
   border-color: #e5484d;
   color: #e5484d;
 }
+
+/* Rider → Logins */
+.login-rows { margin: 8px 0; display: grid; gap: 6px; }
+.login-row { display: grid; gap: 2px; }
+.login-row dd { margin: 0; display: flex; align-items: center; gap: 6px; }
+.login-value { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 600; font-variant-numeric: tabular-nums; }
+.login-open { display: block; text-align: center; margin-top: 6px; text-decoration: none; }
+.login-pass { display: flex; gap: 6px; align-items: center; }
+.login-pass input { flex: 1; min-width: 0; }

@@ -17,6 +17,7 @@ import { Skills, Tips } from './screens/Skills'
 import { Coach } from './screens/Coach'
 import { Fears, Weekly } from './screens/Weekly'
 import { Tricks } from './screens/Tricks'
+import { Logins } from './screens/Logins'
 import type { BodyPart } from './lib/types'
 
 export default function App() {
@@ -122,6 +123,7 @@ function Page({ route }: { route: string }) {
     if (page === 'weekly') return <Weekly />
     if (page === 'fears') return <Fears />
     if (page === 'tricks') return <Tricks />
+    if (page === 'logins') return <Logins />
     return <RiderHub />
   }
   return <Home />

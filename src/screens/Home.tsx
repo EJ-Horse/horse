@@ -9,7 +9,7 @@ import { careNextDue, lastVisit } from './Health'
 import { CodesBanner, ContactButtons } from '../components/Contacts'
 import { NextEvent } from '../components/NextEvent'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
-import type { Attention, FunPhoto, HorseEvent, Injury, TrickProgress } from '../lib/types'
+import type { Attention, FunPhoto, HorseEvent, Login, Injury, TrickProgress } from '../lib/types'
 import { injuryDay, latestCheck, needsVet } from '../lib/injury'
 import { DEFAULT_SCHEDULE, weekSlots } from '../lib/rides'
 import { closedOn } from '../lib/events'
@@ -180,6 +180,7 @@ export function RiderHub() {
   const excellent = skills.filter((s) => s.data.rating === 'excellent').length
   const tricksLearned = useItems<TrickProgress>('trick').filter((t) => t.data.status === 'got it').length
   const rides = useItems<CoachEntry>('coach')
+  const logins = useItems<Login>('login')
   const schedule = useSingle<RideSchedule>('rideSchedule')?.data.slots ?? DEFAULT_SCHEDULE
   const events = useItems<HorseEvent>('event')
   const ridesDue = weekSlots(schedule, rides.map((r) => r.data), today(), (d) => closedOn(events, d)).filter((s) => s.state === 'due').length
@@ -197,6 +198,7 @@ export function RiderHub() {
         <Tile to="rider/weekly" icon="✅" title="Tasks" sub={left ? `${left} left` : 'All done'} badge={left || undefined} />
         <Tile to="rider/tricks" icon="🎪" title="Tricks" sub={`${tricksLearned} learned`} />
         <Tile to="rider/fears" icon="😨" title="What scares EJ" sub={fears.length ? `${fears.length} active` : 'Nothing'} />
+        <Tile to="rider/logins" icon="🔑" title="Logins" sub={logins.length ? logins.map((l) => l.data.name).join(', ') : 'AHR & more'} />
       </div>
     </Screen>
   )
