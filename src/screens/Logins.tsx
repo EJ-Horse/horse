@@ -37,6 +37,7 @@ function LoginCard({ item, onEdit }: { item: Item<Login>; onEdit: () => void }) 
   const rows: [string, string | undefined, boolean?][] = [
     ['User number', l.number],
     ['Username', l.username],
+    ['Phone', l.phone],
     ['Password', l.password, true],
   ]
   return (
@@ -85,7 +86,7 @@ function LoginSheet({ item, onClose }: { item?: Item<Login>; onClose: () => void
   async function save() {
     if (!d.name.trim()) return setErr('Give it a name, e.g. AHR.')
     const clean: Login = { name: d.name.trim() }
-    for (const k of ['url', 'number', 'username', 'password', 'notes'] as const) if (d[k]?.trim()) clean[k] = d[k]!.trim()
+    for (const k of ['url', 'number', 'username', 'phone', 'password', 'notes'] as const) if (d[k]?.trim()) clean[k] = d[k]!.trim()
     if (clean.url && !/^https?:\/\//i.test(clean.url)) clean.url = 'https://' + clean.url
     try {
       if (item) await updateItem(item.id, clean)
@@ -108,6 +109,9 @@ function LoginSheet({ item, onClose }: { item?: Item<Login>; onClose: () => void
       </Field>
       <Field label="Username / email">
         <input autoCapitalize="none" autoCorrect="off" value={d.username ?? ''} onChange={(e) => set('username', e.target.value)} />
+      </Field>
+      <Field label="Phone on the account">
+        <input type="tel" value={d.phone ?? ''} onChange={(e) => set('phone', e.target.value)} />
       </Field>
       <Field label="Password">
         <div className="login-pass">

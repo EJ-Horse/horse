@@ -255,4 +255,4 @@ export type TrickProgress = {
 export type FunPhoto = { path: string; date: string; caption?: string; favorite?: boolean }
 
 /** A website account (AHR / AHA registry, show entries…). Stored in the shared database, never in code. */
-export type Login = { name: string; url?: string; number?: string; username?: string; password?: string; notes?: string }
+export type Login = { name: string; url?: string; number?: string; username?: string; phone?: string; password?: string; notes?: string }
