@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { Screen, Sheet } from '../components/ui'
 import { formatDate } from '../lib/dates'
 import {
+  ancestorsByGeneration,
   bestResults,
+  GEN_NAMES,
   generations,
   niceName,
   PEDIGREE_PATH,
+  relation,
   repeats,
   type PedHorse,
   type PedigreeData,
@@ -66,6 +69,7 @@ export function Pedigree() {
   const { data, err } = usePedigree()
   const [rootStack, setRootStack] = useState<string[]>([])
   const [depth, setDepth] = useState(4)
+  const [view, setView] = useState<'tree' | 'detail'>('tree')
   const [open, setOpen] = useState<string | null>(null)
 
   if (err) return <Screen title="Pedigree"><p className="empty">{err}</p></Screen>
@@ -107,18 +111,32 @@ export function Pedigree() {
         </div>
       )}
 
-      <div className="row-between ped-controls">
-        <span className="muted small">Tap any horse for details · 📷 has photos</span>
-        <div className="segmented mini">
-          {[3, 4, 5].map((n) => (
-            <button key={n} className={depth === n ? 'on' : ''} onClick={() => setDepth(n)}>
-              {n} gen
-            </button>
-          ))}
-        </div>
+      <div className="segmented ped-view">
+        <button className={view === 'tree' ? 'on' : ''} onClick={() => setView('tree')}>
+          🌳 Tree
+        </button>
+        <button className={view === 'detail' ? 'on' : ''} onClick={() => setView('detail')}>
+          📋 Detailed
+        </button>
       </div>
 
-      <Tree data={data} rootId={rootId} depth={depth} onOpen={setOpen} />
+      {view === 'tree' ? (
+        <>
+          <div className="ped-controls">
+            <div className="segmented mini">
+              {[3, 4, 5, 6, 7].map((n) => (
+                <button key={n} className={depth === n ? 'on' : ''} onClick={() => setDepth(n)}>
+                  {n - 1} back
+                </button>
+              ))}
+            </div>
+            <span className="muted small">Tap any horse for details · 📷 photos · 🏆 show wins · blue = sire, pink = dam</span>
+          </div>
+          <Tree data={data} rootId={rootId} depth={depth} onOpen={setOpen} />
+        </>
+      ) : (
+        <Detailed data={data} rootId={rootId} onOpen={setOpen} />
+      )}
 
       {rootId === data.rootId && (
         <>
@@ -141,23 +159,25 @@ function Tree({ data, rootId, depth, onOpen }: { data: PedigreeData; rootId: str
   const rows = 2 ** (depth - 1)
   return (
     <div className="ped-scroll">
-      <div className={'ped-grid' + (depth === 3 ? ' fit' : '')} style={{ gridTemplateColumns: depth === 3 ? 'repeat(3, minmax(0, 1fr))' : `repeat(${depth}, 104px)`, gridTemplateRows: `repeat(${rows}, minmax(${depth > 4 ? 36 : depth > 3 ? 40 : 52}px, auto))` }}>
+      <div className={'ped-grid' + (depth === 3 ? ' fit' : '')} style={{ gridTemplateColumns: depth === 3 ? 'repeat(3, minmax(0, 1fr))' : `repeat(${depth}, ${depth > 5 ? 112 : 132}px)`, gridTemplateRows: `repeat(${rows}, minmax(${depth > 4 ? 36 : depth > 3 ? 48 : 64}px, auto))` }}>
         {gens.map((g, gi) =>
           g.map((h, i) => {
             const span = rows / g.length
             return (
               <div key={`${gi}-${i}`} className="ped-slot" style={{ gridColumn: gi + 1, gridRow: `${i * span + 1} / span ${span}` }}>
                 {h ? (
-                  <button className={'ped-box' + (i % 2 ? ' dam' : ' sire') + (gi === 0 ? ' root' : '')} onClick={() => onOpen(h.id)}>
+                  <button className={'ped-box' + (i % 2 ? ' dam' : ' sire') + (gi === 0 ? ' root' : '') + (depth <= 4 && h.photos?.length ? ' with-thumb' : '')} onClick={() => onOpen(h.id)}>
+                    {depth <= 4 && h.photos?.length ? <PedImg path={h.photos[0]} className="ped-thumb" /> : null}
                     <span className="ped-name">
                       {niceName(h.name)}
                       {h.titles && <span className="ped-titles"> {h.titles}</span>}
                     </span>
                     <span className="ped-meta">
-                      {year(h.foaled)} · {niceName(h.color ?? '')}
+                      {sexIcon(h)} {year(h.foaled)} · {niceName(h.color ?? '')}
                       {h.photos?.length ? ' · 📷' : ''}
-                      {bestResults(h).length ? ' · 🏆' : ''}
+                      {depth > 4 && bestResults(h).length ? ' · 🏆' : ''}
                     </span>
+                    {depth <= 4 && bestResults(h)[0] && <span className="ped-win">🏆 {shortWin(bestResults(h)[0])}</span>}
                   </button>
                 ) : (
                   <span className="ped-box empty">Unknown</span>
@@ -171,8 +191,83 @@ function Tree({ data, rootId, depth, onOpen }: { data: PedigreeData; rootId: str
   )
 }
 
+function shortWin(r: ShowResult) {
+  return `${niceName(r.place)}, ${niceName(r.show).replace(/\s*\(.*$/, '')}${r.date ? ' ' + year(r.date) : ''}`
+}
+
+/** Every ancestor as a card, generation by generation, with photo, relationship and highlights. */
+function Detailed({ data, rootId, onOpen }: { data: PedigreeData; rootId: string; onOpen: (id: string) => void }) {
+  const gens = useMemo(() => ancestorsByGeneration(data, rootId, 6), [data, rootId])
+  const counts = useMemo(() => repeats(data, rootId, 7), [data, rootId])
+  const rootName = niceName(data.horses[rootId].name)
+  return (
+    <div>
+      {gens.map((g, gi) => {
+        const known = g.filter((s) => s.horse)
+        if (!known.length) return null
+        return (
+          <details key={gi} className="ped-gen" open={gi < 2}>
+            <summary>
+              <strong>{GEN_NAMES[gi + 1]}</strong>{' '}
+              <span className="muted small">
+                · {known.length} horses{gi === 0 ? ` of ${rootName}` : ''}
+              </span>
+            </summary>
+            <ul className="ped-cards">
+              {g.map((s, i) => {
+                const h = s.horse
+                if (!h) return null
+                const win = bestResults(h)[0]
+                const n = counts.get(h.id) ?? 1
+                return (
+                  <li key={i}>
+                    <button className={'ped-card ' + s.path.at(-1)} onClick={() => onOpen(h.id)}>
+                      {h.photos?.length ? <PedImg path={h.photos[0]} className="ped-card-img" /> : <span className="ped-card-img none">{sexIcon(h)}</span>}
+                      <span className="ped-card-body">
+                        <span className="ped-card-rel">
+                          {gi < 3 ? relation(s.path) + ' · ' : ''}
+                          {s.path.at(-1) === 'sire' ? 'sire' : 'dam'} of {niceName(s.child?.name ?? '')}
+                          {n > 1 ? <span className="ped-x"> ×{n} in tree</span> : null}
+                        </span>
+                        <strong className="ped-card-name">
+                          {niceName(h.name)}
+                          {h.titles && <span className="ped-titles"> {h.titles}</span>}
+                        </strong>
+                        <span className="small muted">
+                          {[h.foaled && `born ${year(h.foaled)}`, h.died && `died ${year(h.died)}`, `${niceName(h.color ?? '')} ${h.gender?.toLowerCase() ?? ''}`.trim(), h.reg].filter(Boolean).join(' · ')}
+                        </span>
+                        {h.breeder && <span className="small muted">Bred by {niceName(h.breeder)}</span>}
+                        {win && (
+                          <span className="ped-win">
+                            🏆 {shortWin(win)}
+                            {bestResults(h).length > 1 ? ` +${bestResults(h).length - 1} more` : ''}
+                          </span>
+                        )}
+                        {h.markings && <span className="small muted ped-card-marks">✦ {h.markings.toLowerCase()}</span>}
+                        <span className="ped-card-icons small">
+                          {[
+                            h.photos?.length && `📷 ${h.photos.length} photos`,
+                            (h.shows?.length || h.openComps?.length) && `${(h.shows?.length ?? 0) + (h.openComps?.length ?? 0)} show results`,
+                            h.rides?.length && `🏇 ${h.rides.length} rides`,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </details>
+        )
+      })}
+    </div>
+  )
+}
+
 function LineBreeding({ data, onOpen }: { data: PedigreeData; onOpen: (id: string) => void }) {
-  const rep = [...repeats(data, data.rootId, 6).entries()].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1])
+  const rep = [...repeats(data, data.rootId, 7).entries()].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1])
   if (!rep.length) return null
   return (
     <section>

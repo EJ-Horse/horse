@@ -88,3 +88,29 @@ export function bestResults(h: PedHorse) {
   const rank = (p: string) => (/^champ/i.test(p) ? 0 : /res/i.test(p) ? 1 : /top/i.test(p) ? 2 : /^1/.test(p) ? 3 : 4)
   return all.filter((r) => /nation|champ|top ten|top five|reserve/i.test(r.show + ' ' + r.place)).sort((a, b) => rank(a.place) - rank(b.place))
 }
+
+export const GEN_NAMES = ['', 'Parents', 'Grandparents', 'Great-grandparents', '2nd great-grandparents', '3rd great-grandparents', '4th great-grandparents']
+
+/** Every ancestor generation by generation, with who it is the parent of and how it is related ("Dad's mom"). */
+export function ancestorsByGeneration(data: PedigreeData, rootId: string, back: number) {
+  type Slot = { horse?: PedHorse; path: ('sire' | 'dam')[]; child?: PedHorse }
+  let level: Slot[] = [{ horse: data.horses[rootId], path: [] }]
+  const out: Slot[][] = []
+  for (let g = 1; g <= back; g++) {
+    level = level.flatMap((s) => {
+      const [sire, dam] = parentsOf(data, s.horse?.id)
+      return [
+        { horse: sire, path: [...s.path, 'sire' as const], child: s.horse },
+        { horse: dam, path: [...s.path, 'dam' as const], child: s.horse },
+      ]
+    })
+    out.push(level)
+  }
+  return out
+}
+
+/** ['sire','dam'] → "Dad's mom" */
+export function relation(path: ('sire' | 'dam')[]) {
+  const s = path.map((p) => (p === 'sire' ? 'dad' : 'mom')).join('’s ')
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
