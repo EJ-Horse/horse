@@ -18,7 +18,7 @@ import { mediaUrl } from '../lib/store'
 import { supabase } from '../lib/supabase'
 
 /** Private storage in the real app; a git-ignored local copy while previewing without the database. */
-async function pedUrl(path: string) {
+export async function pedUrl(path: string) {
   if (supabase) return mediaUrl(path)
   return import.meta.env.BASE_URL + 'pedigree-dev/' + path.replace(/^pedigree\//, '')
 }
@@ -35,7 +35,7 @@ function usePedUrl(path?: string) {
   return url
 }
 
-function PedImg({ path, className, onClick, alt = '' }: { path?: string; className?: string; onClick?: () => void; alt?: string }) {
+export function PedImg({ path, className, onClick, alt = '' }: { path?: string; className?: string; onClick?: () => void; alt?: string }) {
   const url = usePedUrl(path)
   if (!path) return null
   if (!url) return <div className={'img-placeholder ' + (className ?? '')} />

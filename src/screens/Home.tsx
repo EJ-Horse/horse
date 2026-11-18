@@ -165,6 +165,7 @@ export function HorseHub() {
         <Tile to="horse/health" icon="🩺" title="Health" sub="Vaccines, care, symptoms" badge={alerts || undefined} />
         <Tile to="horse/photos" icon="🩻" title="Body photos" sub={`${photos.length} · track changes`} />
         <Tile to="horse/fun" icon="🎉" title="Fun photos" sub={funCount ? `${funCount} photos` : 'Just for fun'} />
+        <Tile to="horse/story" icon="📖" title="Life story" sub="South Dakota to today" />
         <Tile to="horse/pedigree" icon="🌳" title="Pedigree" sub="Family tree" />
         <Tile to="horse/nutrition" icon="🥕" title="Nutrition" sub="OK, limit, never" />
         <Tile to="horse/beautify" icon="🎀" title="Beautify" sub="Braids & looks" />

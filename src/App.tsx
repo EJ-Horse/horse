@@ -19,6 +19,7 @@ import { Fears, Weekly } from './screens/Weekly'
 import { Tricks } from './screens/Tricks'
 import { Logins } from './screens/Logins'
 import { Pedigree } from './screens/Pedigree'
+import { LifeStory } from './screens/LifeStory'
 import type { BodyPart } from './lib/types'
 
 export default function App() {
@@ -112,6 +113,7 @@ function Page({ route }: { route: string }) {
     if (page === 'photos') return <Photos />
     if (page === 'fun') return <FunPhotos />
     if (page === 'pedigree') return <Pedigree />
+    if (page === 'story') return <LifeStory />
     if (page === 'nutrition') return <Nutrition />
     if (page === 'beautify') return <Beautify />
     if (page === 'shopping') return <Shopping />
