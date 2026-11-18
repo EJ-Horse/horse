@@ -4,7 +4,7 @@ import { formatDate, today } from '../lib/dates'
 import { addItem, removeItem, updateItem, useItems, useSingle, type Item } from '../lib/store'
 import { ageAt, ERA_ORDER, ERAS, exactAge, milesBetween, sortKey, STOPS, storyDate, type Era, type StoryChapter, type StoryQuestion } from '../lib/story'
 import type { CoachEntry, FunPhoto, Profile, TrickProgress, VetVisit } from '../lib/types'
-import { PedImg } from './Pedigree'
+import { DocLink, PedImg } from './Pedigree'
 import { TRICKS } from '../lib/tricks'
 
 /** A photo from private storage: pedigree/… research photos or the family's own uploads. */
@@ -145,6 +145,13 @@ function ChapterCard({ item, birth, onEdit, onPhoto }: { item: Item<StoryChapter
             ▶︎ Watch the video
           </a>
         )}
+        {c.docs?.length ? (
+          <div className="quick-row">
+            {c.docs.map((d) => (
+              <DocLink key={d.path} path={d.path} label={`📄 ${d.label}`} />
+            ))}
+          </div>
+        ) : null}
         {c.sources?.length ? (
           <span className="story-sources small muted">
             Source:{' '}

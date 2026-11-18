@@ -23,6 +23,17 @@ export async function pedUrl(path: string) {
   return import.meta.env.BASE_URL + 'pedigree-dev/' + path.replace(/^pedigree\//, '')
 }
 
+/** A button that opens a private document (e.g. the sale agreement PDF) in a new tab. */
+export function DocLink({ path, label }: { path: string; label: string }) {
+  const url = usePedUrl(path)
+  if (!url) return null
+  return (
+    <a className="btn secondary small" href={url} target="_blank" rel="noreferrer">
+      {label}
+    </a>
+  )
+}
+
 function usePedUrl(path?: string) {
   const [url, setUrl] = useState('')
   useEffect(() => {

@@ -18,6 +18,8 @@ export type StoryChapter = {
   photos?: string[]
   video?: string
   sources?: StorySource[]
+  /** private documents to open, e.g. the sale agreement (storage path) */
+  docs?: { label: string; path: string }[]
   /** written by us in the app, not from research */
   ours?: boolean
 }

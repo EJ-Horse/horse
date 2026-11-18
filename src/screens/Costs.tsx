@@ -3,6 +3,7 @@ import { AddButton, AddedBy, ErrorText, Field, LinkOut, MediaImg, SaveBar, Scree
 import { formatDate, monthKey, monthLabel, today } from '../lib/dates'
 import { addItem, deleteMedia, removeItem, updateItem, useItems, useMediaUrl, useSingle, type Item } from '../lib/store'
 import { COST_CATEGORIES, type Cost, type Profile } from '../lib/types'
+import { DocLink } from './Pedigree'
 import { totalsByCategory, totalsByMonth } from '../lib/costs'
 
 export function money(n: number, currency = '$') {
@@ -89,7 +90,7 @@ export function Costs() {
             </div>
             <p className="muted small">
               {c.data.category} · {formatDate(c.data.date)}
-              {c.data.invoice && ' · 📎 invoice'} <AddedBy item={c} />
+              {c.data.invoice && (c.data.invoice.startsWith('pedigree/docs/') ? ' · 📄 contract' : ' · 📎 invoice')} <AddedBy item={c} />
             </p>
           </li>
         ))}
@@ -100,6 +101,11 @@ export function Costs() {
 }
 
 function InvoiceLink({ path }: { path: string }) {
+  if (path.startsWith('pedigree/docs/')) return <DocLink path={path} label="📄 Open the document" />
+  return <MediaInvoiceLink path={path} />
+}
+
+function MediaInvoiceLink({ path }: { path: string }) {
   const url = useMediaUrl(path)
   return <LinkOut href={url}>📎 Open invoice</LinkOut>
 }
@@ -158,7 +164,7 @@ function CostSheet({ item, currency, onClose }: { item: Item<Cost> | null; curre
         onDelete={
           item
             ? () => {
-                void deleteMedia([item.data.invoice])
+                if (!item.data.invoice?.startsWith('pedigree/docs/')) void deleteMedia([item.data.invoice])
                 void removeItem(item.id).then(onClose)
               }
             : undefined
