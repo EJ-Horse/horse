@@ -5,7 +5,7 @@ import { useItems, useSingle } from '../lib/store'
 import type { FunPhoto, Profile } from '../lib/types'
 import { CAKES, CAKE_SAFETY, SUGAR_LABEL, type Cake } from '../lib/cakes'
 import { go } from '../lib/router'
-import { Lightbox, MediaImg, Segmented, Sheet } from './ui'
+import { Lightbox, MediaImg, Sheet } from './ui'
 
 const PARTY_IDEAS = [
   '🥕 A horse-safe “cake”: grated carrot and apple pressed into a bowl of his usual feed, with a carrot “candle”. Keep it small, and check Nutrition for what he can have.',
@@ -109,13 +109,37 @@ export function BirthdayCard() {
   )
 }
 
-type CakeFilter = 'all' | 'no oven' | 'low sugar'
+type CakeFilter = 'all' | 'no oven' | 'baked' | 'mini' | 'frozen' | 'low sugar' | 'quick'
+const FILTERS: [CakeFilter, string][] = [
+  ['all', 'All'],
+  ['no oven', '🚫🔥 No oven'],
+  ['baked', '🔥 Baked'],
+  ['mini', '🧁 Mini & cookies'],
+  ['frozen', '🧊 Frozen'],
+  ['low sugar', '🟢 Low sugar'],
+  ['quick', '⚡ Quick'],
+]
+const KIND_TITLE: Record<Cake['kind'], string> = { 'no-bake': '🥕 No-bake cakes', baked: '🎂 Baked cakes', mini: '🧁 Cupcakes, cookies & bites', frozen: '🧊 Frozen cakes' }
+
+function matches(c: Cake, f: CakeFilter, q: string) {
+  const okFilter =
+    f === 'all' || (f === 'no oven' ? !c.oven : f === 'baked' ? c.kind === 'baked' : f === 'mini' ? c.kind === 'mini' : f === 'frozen' ? c.kind === 'frozen' : f === 'low sugar' ? c.sugar === 'low' : !!c.quick)
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean)
+  const hay = (c.name + ' ' + c.about + ' ' + c.ingredients.map((i) => i.text).join(' ')).toLowerCase()
+  return okFilter && words.every((w) => hay.includes(w))
+}
 
 /** Birthday → horse-safe cake recipes, with step-by-step instructions. */
 function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
   const [filter, setFilter] = useState<CakeFilter>('all')
+  const [q, setQ] = useState('')
   const [open, setOpen] = useState<string | null>(null)
-  const shown = CAKES.filter((c) => filter === 'all' || (filter === 'no oven' ? !c.oven : c.sugar === 'low'))
+  const shown = CAKES.filter((c) => matches(c, filter, q))
+  function surprise() {
+    const pick = shown[Math.floor(Math.random() * shown.length)] ?? CAKES[0]
+    setOpen(pick.key)
+    setTimeout(() => document.getElementById('cake-' + pick.key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
   return (
     <Sheet open title="🍰 Horse-safe cakes" onClose={onClose}>
       <p className="small">Birthday cakes {name} can actually eat. No flour, chocolate or icing: just oats, fruit, veggies and his usual feed.</p>
@@ -132,12 +156,37 @@ function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
           Check any ingredient in Nutrition →
         </button>
       </details>
-      <Segmented value={filter} options={['all', 'no oven', 'low sugar'] as const} labels={{ all: 'All', 'no oven': '🚫🔥 No oven', 'low sugar': '🟢 Low sugar' }} onChange={setFilter} />
-      <ul className="list cake-list">
-        {shown.map((c) => (
-          <CakeCard key={c.key} cake={c} open={open === c.key} onToggle={() => setOpen(open === c.key ? null : c.key)} />
+      <div className="cake-search">
+        <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${CAKES.length} cakes…`} />
+        <button className="btn small" onClick={surprise} disabled={!shown.length}>
+          🎲 Surprise me
+        </button>
+      </div>
+      <div className="chips cake-filters">
+        {FILTERS.map(([k, label]) => (
+          <button key={k} className={'chip' + (filter === k ? ' on' : '')} onClick={() => setFilter(k)}>
+            {label}
+          </button>
         ))}
-      </ul>
+      </div>
+      <p className="muted small">{shown.length === CAKES.length ? `${CAKES.length} cakes` : `${shown.length} of ${CAKES.length} cakes`}</p>
+      {shown.length === 0 && <p className="empty">No cakes match. Try another word or filter.</p>}
+      {(['no-bake', 'baked', 'mini', 'frozen'] as const).map((kind) => {
+        const group = shown.filter((c) => c.kind === kind)
+        if (!group.length) return null
+        return (
+          <section key={kind}>
+            <h3 className="section-title">
+              {KIND_TITLE[kind]} <span className="muted">· {group.length}</span>
+            </h3>
+            <ul className="list cake-list">
+              {group.map((c) => (
+                <CakeCard key={c.key} cake={c} open={open === c.key} onToggle={() => setOpen(open === c.key ? null : c.key)} />
+              ))}
+            </ul>
+          </section>
+        )
+      })}
     </Sheet>
   )
 }
@@ -145,7 +194,7 @@ function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
 function CakeCard({ cake: c, open, onToggle }: { cake: Cake; open: boolean; onToggle: () => void }) {
   const [done, setDone] = useState<number[]>([])
   return (
-    <li className={'card cake-card' + (open ? ' open' : '')}>
+    <li id={'cake-' + c.key} className={'card cake-card' + (open ? ' open' : '')}>
       <button className="cake-head" onClick={onToggle} aria-expanded={open}>
         <span className="cake-emoji" aria-hidden>
           {c.emoji}
@@ -154,6 +203,7 @@ function CakeCard({ cake: c, open, onToggle }: { cake: Cake; open: boolean; onTo
           <strong>{c.name}</strong>
           <span className="small muted">{c.about}</span>
           <span className="cake-tags small">
+            {c.quick && <span className="tag">⚡ Quick</span>}
             <span className="tag">⏱ {c.time}</span>
             <span className="tag">{c.oven ? '🔥 Oven' : '🚫🔥 No oven'}</span>
             <span className="tag">{SUGAR_LABEL[c.sugar]}</span>

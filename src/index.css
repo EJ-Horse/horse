@@ -1964,3 +1964,8 @@ img.hero-img {
 .cake-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
 .cake-body { padding: 0 12px 12px; border-top: 1px solid var(--line); }
 .cake-body .field-label { margin-top: 8px; }
+.cake-search { display: flex; gap: 8px; align-items: center; margin: 10px 0 8px; }
+.cake-search input { flex: 1; min-width: 0; }
+.cake-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+.cake-filters .chip { white-space: nowrap; flex: none; }
+.cake-card { scroll-margin-top: 70px; }
