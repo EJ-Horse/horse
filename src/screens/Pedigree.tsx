@@ -175,6 +175,7 @@ function Tree({ data, rootId, depth, onOpen }: { data: PedigreeData; rootId: str
                     <span className="ped-meta">
                       {sexIcon(h)} {year(h.foaled)} · {niceName(h.color ?? '')}
                       {h.photos?.length ? ' · 📷' : ''}
+                      {h.videos?.length ? ' · ▶︎' : ''}
                       {depth > 4 && bestResults(h).length ? ' · 🏆' : ''}
                     </span>
                     {depth <= 4 && bestResults(h)[0] && <span className="ped-win">🏆 {shortWin(bestResults(h)[0])}</span>}
@@ -249,6 +250,7 @@ function Detailed({ data, rootId, onOpen }: { data: PedigreeData; rootId: string
                             h.photos?.length && `📷 ${h.photos.length} photos`,
                             (h.shows?.length || h.openComps?.length) && `${(h.shows?.length ?? 0) + (h.openComps?.length ?? 0)} show results`,
                             h.rides?.length && `🏇 ${h.rides.length} rides`,
+                            h.videos?.length && `▶︎ video`,
                           ]
                             .filter(Boolean)
                             .join(' · ')}
@@ -392,8 +394,18 @@ function HorseSheet({
           ))}
         </div>
       ) : (
-        <p className="muted small">No photos in DataSource for this horse.</p>
+        <p className="muted small">No photos found for this horse.</p>
       )}
+      {h.videos?.length ? (
+        <div className="quick-row">
+          {h.videos.map((v) => (
+            <a key={v.url} className="btn ghost small" href={v.url} target="_blank" rel="noreferrer">
+              ▶︎ {v.title}
+            </a>
+          ))}
+        </div>
+      ) : null}
+      {h.photoCredits && Object.keys(h.photoCredits).length > 0 && <p className="hint">Some photos were found on the web; tap one to see where it came from.</p>}
 
       <dl className="ped-facts">
         <dt>Registration</dt>
@@ -507,6 +519,11 @@ function HorseSheet({
       {big && (
         <div className="lightbox" onClick={() => setBig(null)}>
           {bigUrl && <img src={bigUrl} alt={h.name} className="lightbox-img" />}
+          {h.photoCredits?.[big] && (
+            <a className="ped-credit" href={h.photoCredits[big]} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+              Photo from {new URL(h.photoCredits[big]).hostname.replace(/^www\./, '')} ↗
+            </a>
+          )}
         </div>
       )}
     </Sheet>

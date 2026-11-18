@@ -25,6 +25,10 @@ export type PedHorse = {
   markings?: string
   markingImg?: string
   photos?: string[]
+  /** photo path → web page it came from (photos found on the web, not in DataSource) */
+  photoCredits?: Record<string, string>
+  /** videos found on the web, e.g. a sale video */
+  videos?: { url: string; title: string }[]
   shows?: ShowResult[]
   openComps?: ShowResult[]
   rides?: Record<string, string>[]
