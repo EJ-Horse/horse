@@ -3,7 +3,9 @@ import { daysBetween, formatDate, nextBirthday, ordinal, parseDate, today } from
 import { downloadIcs } from '../lib/ics'
 import { useItems, useSingle } from '../lib/store'
 import type { FunPhoto, Profile } from '../lib/types'
-import { Lightbox, MediaImg } from './ui'
+import { CAKES, CAKE_SAFETY, SUGAR_LABEL, type Cake } from '../lib/cakes'
+import { go } from '../lib/router'
+import { Lightbox, MediaImg, Segmented, Sheet } from './ui'
 
 const PARTY_IDEAS = [
   '🥕 A horse-safe “cake”: grated carrot and apple pressed into a bowl of his usual feed, with a carrot “candle”. Keep it small, and check Nutrition for what he can have.',
@@ -26,6 +28,7 @@ export function BirthdayCard() {
   const fun = useItems<FunPhoto>('funphoto')
   const [ideas, setIdeas] = useState(false)
   const [big, setBig] = useState<string | null>(null)
+  const [cakes, setCakes] = useState(false)
   if (!p?.birthDate) return null
   const name = p.name || 'EJ'
   const now = today()
@@ -70,6 +73,9 @@ export function BirthdayCard() {
         </span>
       )}
       <div className="quick-row">
+        <button className="btn small" onClick={() => setCakes(true)}>
+          🍰 Horse-safe cakes
+        </button>
         <button className="btn ghost small" onClick={() => setIdeas(!ideas)}>
           🎁 {ideas ? 'Hide' : 'Party'} ideas
         </button>
@@ -98,6 +104,85 @@ export function BirthdayCard() {
         </>
       )}
       <Lightbox path={big} onClose={() => setBig(null)} />
+      {cakes && <CakesSheet name={name} onClose={() => setCakes(false)} />}
     </div>
+  )
+}
+
+type CakeFilter = 'all' | 'no oven' | 'low sugar'
+
+/** Birthday → horse-safe cake recipes, with step-by-step instructions. */
+function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
+  const [filter, setFilter] = useState<CakeFilter>('all')
+  const [open, setOpen] = useState<string | null>(null)
+  const shown = CAKES.filter((c) => filter === 'all' || (filter === 'no oven' ? !c.oven : c.sugar === 'low'))
+  return (
+    <Sheet open title="🍰 Horse-safe cakes" onClose={onClose}>
+      <p className="small">Birthday cakes {name} can actually eat. No flour, chocolate or icing: just oats, fruit, veggies and his usual feed.</p>
+      <details className="card soft cake-safety">
+        <summary>
+          <strong>⚠️ Read first: cake safety</strong>
+        </summary>
+        <ul className="bullets small">
+          {CAKE_SAFETY.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+        <button className="link small" onClick={() => go('horse/nutrition')}>
+          Check any ingredient in Nutrition →
+        </button>
+      </details>
+      <Segmented value={filter} options={['all', 'no oven', 'low sugar'] as const} labels={{ all: 'All', 'no oven': '🚫🔥 No oven', 'low sugar': '🟢 Low sugar' }} onChange={setFilter} />
+      <ul className="list cake-list">
+        {shown.map((c) => (
+          <CakeCard key={c.key} cake={c} open={open === c.key} onToggle={() => setOpen(open === c.key ? null : c.key)} />
+        ))}
+      </ul>
+    </Sheet>
+  )
+}
+
+function CakeCard({ cake: c, open, onToggle }: { cake: Cake; open: boolean; onToggle: () => void }) {
+  const [done, setDone] = useState<number[]>([])
+  return (
+    <li className={'card cake-card' + (open ? ' open' : '')}>
+      <button className="cake-head" onClick={onToggle} aria-expanded={open}>
+        <span className="cake-emoji" aria-hidden>
+          {c.emoji}
+        </span>
+        <span className="cake-title">
+          <strong>{c.name}</strong>
+          <span className="small muted">{c.about}</span>
+          <span className="cake-tags small">
+            <span className="tag">⏱ {c.time}</span>
+            <span className="tag">{c.oven ? '🔥 Oven' : '🚫🔥 No oven'}</span>
+            <span className="tag">{SUGAR_LABEL[c.sugar]}</span>
+          </span>
+        </span>
+        <span className="muted" aria-hidden>
+          {open ? '▲' : '▼'}
+        </span>
+      </button>
+      {open && (
+        <div className="cake-body">
+          <p className="small muted">Makes: {c.serves}</p>
+          <span className="field-label">You need</span>
+          <ul className="bullets small">
+            {c.ingredients.map((i) => (
+              <li key={i.text}>{i.text}</li>
+            ))}
+          </ul>
+          <span className="field-label">How to make it (tap a step when done)</span>
+          <ol className="steps">
+            {c.steps.map((s, i) => (
+              <li key={i} className={done.includes(i) ? 'done' : ''} onClick={() => setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]))}>
+                {s}
+              </li>
+            ))}
+          </ol>
+          {c.tip && <p className="hint">💡 {c.tip}</p>}
+        </div>
+      )}
+    </li>
   )
 }

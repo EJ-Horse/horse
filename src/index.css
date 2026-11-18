@@ -1937,7 +1937,7 @@ img.hero-img {
 /* Horse → birthday countdown */
 .bday-card { display: grid; gap: 8px; }
 .bday-card.soon { border-color: #e9b949; background: linear-gradient(135deg, #fff8e6, var(--card)); }
-.bday-card.today { border-color: #e9b949; background: linear-gradient(135deg, #fff1c9, #ffe3ef); text-align: center; }
+.bday-card.today { border-color: #e9b949; background: linear-gradient(135deg, #fff1c9, #ffe3ef); }
 @media (prefers-color-scheme: dark) {
   .bday-card.soon, .bday-card.today { background: linear-gradient(135deg, #3a2f12, var(--card)); }
 }
@@ -1945,7 +1945,7 @@ img.hero-img {
 .bday-icon { font-size: 2.2rem; line-height: 1; }
 .bday-text { display: grid; gap: 1px; }
 .bday-big { font-size: 1.5rem; line-height: 1.15; }
-.bday-today { display: grid; gap: 4px; justify-items: center; }
+.bday-today { display: grid; gap: 4px; justify-items: center; text-align: center; }
 .bday-confetti { font-size: 1.8rem; letter-spacing: 4px; }
 .bday-track { display: block; height: 8px; border-radius: 99px; overflow: hidden; background: var(--line); }
 .bday-fill { display: block; height: 100%; background: linear-gradient(90deg, #f6ad55, #ed64a6); border-radius: 99px; }
@@ -1953,3 +1953,14 @@ img.hero-img {
 .bday-memories { display: flex; gap: 8px; overflow-x: auto; }
 .bday-memory { all: unset; cursor: pointer; display: grid; gap: 2px; justify-items: center; }
 .bday-memory-img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; }
+/* Birthday → horse-safe cakes */
+.cake-safety { margin: 8px 0 10px; }
+.cake-safety summary { cursor: pointer; }
+.cake-list { margin-top: 10px; }
+.cake-card { padding: 0; overflow: hidden; }
+.cake-head { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; padding: 12px; }
+.cake-emoji { font-size: 1.9rem; line-height: 1; }
+.cake-title { display: grid; gap: 3px; flex: 1; min-width: 0; }
+.cake-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.cake-body { padding: 0 12px 12px; border-top: 1px solid var(--line); }
+.cake-body .field-label { margin-top: 8px; }
