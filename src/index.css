@@ -1969,3 +1969,10 @@ img.hero-img {
 .cake-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
 .cake-filters .chip { white-space: nowrap; flex: none; }
 .cake-card { scroll-margin-top: 70px; }
+.cake-pic { position: relative; flex: none; width: 56px; height: 56px; }
+.cake-photo { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; display: block; }
+.cake-pic-badge { position: absolute; right: -4px; bottom: -4px; font-size: 0.7rem; background: var(--card); border-radius: 99px; padding: 1px 3px; }
+.cake-art { display: block; }
+.cake-hero { display: flex; gap: 12px; align-items: center; margin: 10px 0 4px; }
+.cake-hero-photo { width: 132px; height: 132px; border-radius: 14px; object-fit: cover; flex: none; }
+.cake-hero-side { display: grid; gap: 6px; justify-items: start; }

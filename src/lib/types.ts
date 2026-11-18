@@ -254,5 +254,8 @@ export type TrickProgress = {
 /** Just-for-fun photo of EJ (separate from body/health photos). */
 export type FunPhoto = { path: string; date: string; caption?: string; favorite?: boolean }
 
+/** Our own photo of a birthday cake we made (Horse → birthday → cakes); replaces the drawing. */
+export type CakePhoto = { key: string; path: string; date: string }
+
 /** A website account (AHR / AHA registry, show entries…). Stored in the shared database, never in code. */
 export type Login = { name: string; url?: string; number?: string; username?: string; phone?: string; password?: string; notes?: string }

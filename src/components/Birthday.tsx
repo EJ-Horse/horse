@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { daysBetween, formatDate, nextBirthday, ordinal, parseDate, today } from '../lib/dates'
 import { downloadIcs } from '../lib/ics'
-import { useItems, useSingle } from '../lib/store'
-import type { FunPhoto, Profile } from '../lib/types'
+import { addItem, deleteMedia, updateItem, useItems, useSingle, type Item } from '../lib/store'
+import type { CakePhoto, FunPhoto, Profile } from '../lib/types'
+import { CakeArt } from './CakeArt'
 import { CAKES, CAKE_SAFETY, SUGAR_LABEL, type Cake } from '../lib/cakes'
 import { go } from '../lib/router'
-import { Lightbox, MediaImg, Sheet } from './ui'
+import { Lightbox, MediaImg, Sheet, UploadButton } from './ui'
 
 const PARTY_IDEAS = [
   '🥕 A horse-safe “cake”: grated carrot and apple pressed into a bowl of his usual feed, with a carrot “candle”. Keep it small, and check Nutrition for what he can have.',
@@ -104,7 +105,7 @@ export function BirthdayCard() {
         </>
       )}
       <Lightbox path={big} onClose={() => setBig(null)} />
-      {cakes && <CakesSheet name={name} onClose={() => setCakes(false)} />}
+      {cakes && <CakesSheet name={name} age={turning} onClose={() => setCakes(false)} />}
     </div>
   )
 }
@@ -130,7 +131,9 @@ function matches(c: Cake, f: CakeFilter, q: string) {
 }
 
 /** Birthday → horse-safe cake recipes, with step-by-step instructions. */
-function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
+function CakesSheet({ name, age, onClose }: { name: string; age: number; onClose: () => void }) {
+  const photos = useItems<CakePhoto>('cakephoto')
+  const photoOf = new Map(photos.map((p) => [p.data.key, p]))
   const [filter, setFilter] = useState<CakeFilter>('all')
   const [q, setQ] = useState('')
   const [open, setOpen] = useState<string | null>(null)
@@ -181,7 +184,7 @@ function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
             </h3>
             <ul className="list cake-list">
               {group.map((c) => (
-                <CakeCard key={c.key} cake={c} open={open === c.key} onToggle={() => setOpen(open === c.key ? null : c.key)} />
+                <CakeCard key={c.key} cake={c} age={age} photo={photoOf.get(c.key)} open={open === c.key} onToggle={() => setOpen(open === c.key ? null : c.key)} />
               ))}
             </ul>
           </section>
@@ -191,13 +194,21 @@ function CakesSheet({ name, onClose }: { name: string; onClose: () => void }) {
   )
 }
 
-function CakeCard({ cake: c, open, onToggle }: { cake: Cake; open: boolean; onToggle: () => void }) {
+function CakeCard({ cake: c, age, photo, open, onToggle }: { cake: Cake; age: number; photo?: Item<CakePhoto>; open: boolean; onToggle: () => void }) {
   const [done, setDone] = useState<number[]>([])
+  const [big, setBig] = useState(false)
+  async function savePhoto(path: string) {
+    if (photo) {
+      void deleteMedia([photo.data.path])
+      await updateItem(photo.id, { ...photo.data, path, date: today() })
+    } else await addItem<CakePhoto>('cakephoto', { key: c.key, path, date: today() })
+  }
   return (
     <li id={'cake-' + c.key} className={'card cake-card' + (open ? ' open' : '')}>
       <button className="cake-head" onClick={onToggle} aria-expanded={open}>
-        <span className="cake-emoji" aria-hidden>
-          {c.emoji}
+        <span className="cake-pic" aria-hidden>
+          {photo ? <MediaImg path={photo.data.path} className="cake-photo" /> : <CakeArt cake={c} age={age} />}
+          {photo && <span className="cake-pic-badge">📷</span>}
         </span>
         <span className="cake-title">
           <strong>{c.name}</strong>
@@ -215,6 +226,14 @@ function CakeCard({ cake: c, open, onToggle }: { cake: Cake; open: boolean; onTo
       </button>
       {open && (
         <div className="cake-body">
+          <div className="cake-hero">
+            {photo ? <MediaImg path={photo.data.path} className="cake-hero-photo tap" onClick={() => setBig(true)} /> : <CakeArt cake={c} age={age} size={132} />}
+            <div className="cake-hero-side">
+              <span className="small muted">{photo ? `Our photo · ${formatDate(photo.data.date)}` : `${c.emoji} Drawing of what it looks like`}</span>
+              <UploadButton folder="cakes" label={photo ? '📷 Change photo' : '📷 Add our photo'} onUploaded={(paths) => paths[0] && void savePhoto(paths[0])} />
+              {!photo && <span className="hint">Made it? Add your photo and it replaces the drawing.</span>}
+            </div>
+          </div>
           <p className="small muted">Makes: {c.serves}</p>
           <span className="field-label">You need</span>
           <ul className="bullets small">
@@ -231,6 +250,7 @@ function CakeCard({ cake: c, open, onToggle }: { cake: Cake; open: boolean; onTo
             ))}
           </ol>
           {c.tip && <p className="hint">💡 {c.tip}</p>}
+          {photo && <Lightbox path={big ? photo.data.path : null} onClose={() => setBig(false)} />}
         </div>
       )}
     </li>
