@@ -1934,3 +1934,22 @@ img.hero-img {
 .ped-card-icons { color: var(--muted); }
 .ped-x { color: var(--accent); font-weight: 600; }
 .ped-credit { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); color: #fff; background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 999px; font-size: .8rem; text-decoration: none; white-space: nowrap; }
+/* Horse → birthday countdown */
+.bday-card { display: grid; gap: 8px; }
+.bday-card.soon { border-color: #e9b949; background: linear-gradient(135deg, #fff8e6, var(--card)); }
+.bday-card.today { border-color: #e9b949; background: linear-gradient(135deg, #fff1c9, #ffe3ef); text-align: center; }
+@media (prefers-color-scheme: dark) {
+  .bday-card.soon, .bday-card.today { background: linear-gradient(135deg, #3a2f12, var(--card)); }
+}
+.bday-row { display: flex; gap: 12px; align-items: center; }
+.bday-icon { font-size: 2.2rem; line-height: 1; }
+.bday-text { display: grid; gap: 1px; }
+.bday-big { font-size: 1.5rem; line-height: 1.15; }
+.bday-today { display: grid; gap: 4px; justify-items: center; }
+.bday-confetti { font-size: 1.8rem; letter-spacing: 4px; }
+.bday-track { display: block; height: 8px; border-radius: 99px; overflow: hidden; background: var(--line); }
+.bday-fill { display: block; height: 100%; background: linear-gradient(90deg, #f6ad55, #ed64a6); border-radius: 99px; }
+.bday-card .quick-row { margin: 0; }
+.bday-memories { display: flex; gap: 8px; overflow-x: auto; }
+.bday-memory { all: unset; cursor: pointer; display: grid; gap: 2px; justify-items: center; }
+.bday-memory-img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; }

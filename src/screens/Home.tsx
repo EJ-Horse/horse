@@ -8,6 +8,7 @@ import type { CoachEntry, RideSchedule, CareTask, Cost, Fear, HorsePhoto, Profil
 import { careNextDue, lastVisit } from './Health'
 import { CodesBanner, ContactButtons } from '../components/Contacts'
 import { NextEvent } from '../components/NextEvent'
+import { BirthdayCard } from '../components/Birthday'
 import { AttentionBar, AttentionRow, AttentionSheet, useOpenAttention } from '../components/Attention'
 import type { Attention, FunPhoto, HorseEvent, Login, Injury, TrickProgress } from '../lib/types'
 import { injuryDay, latestCheck, needsVet } from '../lib/injury'
@@ -159,6 +160,7 @@ export function HorseHub() {
     <Screen title="Horse" back={false}>
       <AttentionBar area="horse" />
       <VetCard />
+      <BirthdayCard />
       <div className="tiles">
         <Tile to="horse/health" icon="🩺" title="Health" sub="Vaccines, care, symptoms" badge={alerts || undefined} />
         <Tile to="horse/photos" icon="🩻" title="Body photos" sub={`${photos.length} · track changes`} />

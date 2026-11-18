@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, ageFrom, daysBetween, dueLabel, dueState, weekStart } from './dates'
+import { addDays, ageFrom, daysBetween, dueLabel, dueState, nextBirthday, ordinal, weekStart } from './dates'
 import { buildIcs } from './ics'
 
 describe('dates', () => {
@@ -31,11 +31,25 @@ describe('dates', () => {
   })
 })
 
+describe('birthday', () => {
+  it('counts down to the next birthday and the age he turns', () => {
+    expect(nextBirthday('2014-05-09', '2026-11-17')).toEqual({ date: '2027-05-09', days: 173, turning: 13 })
+    expect(nextBirthday('2014-05-09', '2027-05-09')).toEqual({ date: '2027-05-09', days: 0, turning: 13 })
+    expect(nextBirthday('2014-05-09', '2027-05-08').days).toBe(1)
+    expect(nextBirthday('2014-05-09', '2027-05-10').date).toBe('2028-05-09')
+  })
+  it('writes ordinals', () => {
+    expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(ordinal)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd', '23rd'])
+  })
+})
+
 describe('calendar file', () => {
   it('has an all-day event and an alarm', () => {
     const ics = buildIcs('EJ: Flu vaccine', '2026-12-01', 'Call vet')
     expect(ics).toContain('DTSTART;VALUE=DATE:20261201')
     expect(ics).toContain('DTEND;VALUE=DATE:20261202')
     expect(ics).toContain('BEGIN:VALARM')
+    expect(ics).not.toContain('RRULE')
+    expect(buildIcs('EJ birthday', '2027-05-09', '', true)).toContain('RRULE:FREQ=YEARLY')
   })
 })

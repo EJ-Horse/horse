@@ -72,6 +72,22 @@ export function ageFrom(birth: string | undefined, now = today()): string {
   return years === 1 ? '1 year' : `${years} years`
 }
 
+/** The next birthday on or after `now`: its date, days to go and the age he turns. */
+export function nextBirthday(birth: string, now = today()) {
+  const b = parseDate(birth)
+  const n = parseDate(now)
+  let year = n.getFullYear()
+  let d = toISODate(new Date(year, b.getMonth(), b.getDate()))
+  if (d < now) d = toISODate(new Date(++year, b.getMonth(), b.getDate()))
+  return { date: d, days: daysBetween(now, d), turning: year - b.getFullYear() }
+}
+
+/** 1 → 1st, 2 → 2nd, 13 → 13th, 22 → 22nd */
+export function ordinal(n: number) {
+  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th')
+  return n + s
+}
+
 export function monthKey(s: string): string {
   return s.slice(0, 7)
 }
