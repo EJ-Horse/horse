@@ -122,7 +122,7 @@ export type ShopItem = { url: string; note?: string; bought?: boolean; boughtOn?
 
 export const COST_CATEGORIES = ['Stable', 'Vet', 'Farrier', 'Feed', 'Equipment', 'Lessons', 'Shows', 'Transport', 'Grooming', 'Purchase', 'Other'] as const
 /** pending = expected but not paid yet; kept out of the spent totals. */
-export type Cost = { date: string; category: string; amount: number; description?: string; invoice?: string; recurring?: boolean; pending?: boolean }
+export type Cost = { date: string; category: string; amount: number; description?: string; invoice?: string; recurring?: boolean; pending?: boolean; /** when an invoiced cost was paid */ paidOn?: string }
 
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 export type Discipline = 'dressage' | 'jumping'

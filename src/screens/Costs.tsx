@@ -43,7 +43,7 @@ export function Costs() {
       {pending.length > 0 && (
         <div className="card warn">
           <div className="row-between">
-            <strong>⏳ Pending</strong>
+            <strong>🧾 Invoiced – not paid yet</strong>
             <strong>{money(pendingTotal, cur)}</strong>
           </div>
           <ul className="list compact">
@@ -51,13 +51,27 @@ export function Costs() {
               <li key={c.id} className="row-between tap" onClick={() => setEdit(c)}>
                 <span>
                   {c.data.description || c.data.category}
-                  <span className="muted small"> · {c.data.category}</span>
+                  <span className="muted small">
+                    {' '}
+                    · {c.data.category} · {formatDate(c.data.date)}
+                  </span>
                 </span>
-                <span>{money(c.data.amount, cur)}</span>
+                <span className="quick-row">
+                  <span>{money(c.data.amount, cur)}</span>
+                  <button
+                    className="btn secondary small"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void updateItem(c.id, { ...c.data, pending: undefined, paidOn: today() })
+                    }}
+                  >
+                    ✓ Paid
+                  </button>
+                </span>
               </li>
             ))}
           </ul>
-          <p className="hint">Not counted as spent yet. Tap one and untick “Pending” once it’s paid.</p>
+          <p className="hint">Not counted as spent yet. Tap “✓ Paid” when you pay one.</p>
         </div>
       )}
       <select value={month} onChange={(e) => setMonth(e.target.value)} aria-label="Month">
@@ -90,6 +104,7 @@ export function Costs() {
             </div>
             <p className="muted small">
               {c.data.category} · {formatDate(c.data.date)}
+              {c.data.paidOn && ` · ✓ paid ${formatDate(c.data.paidOn)}`}
               {c.data.invoice && (c.data.invoice.startsWith('pedigree/docs/') ? ' · 📄 contract' : ' · 📎 invoice')} <AddedBy item={c} />
             </p>
           </li>
@@ -144,7 +159,12 @@ function CostSheet({ item, currency, onClose }: { item: Item<Cost> | null; curre
         <input type="date" value={d.date} onChange={(e) => set('date', e.target.value)} />
       </Field>
       <label className="check">
-        <input type="checkbox" checked={!!d.pending} onChange={(e) => set('pending', e.target.checked || undefined)} /> Pending (not paid yet)
+        <input type="checkbox" checked={!!d.pending} onChange={(e) => {
+            set('pending', e.target.checked || undefined)
+            set('paidOn', e.target.checked ? undefined : (d.paidOn ?? today()))
+          }}
+        />{' '}
+        Invoiced, not paid yet
       </label>
       <Field label="Invoice / receipt">
         {d.invoice ? (
